@@ -4,11 +4,24 @@ d3.csv("../MalwareVis/data/7cd6edef-0b8c-4f6c-95ac-7b4e799c54a4.csv", function(r
 });
 
 function dataLoaded(result){
-    console.log(result.length);
+    // console.log(result.length);
+
+    //converting data to JSON
+    data = result.map(function(d){
+        return {
+            instr: d.instr,
+            call_name: d.call_name,
+            pid: d.pid
+        }
+    });
 
 
-};
+    console.log(getUniqueValues("call_name"));
+    console.log(getClassName("new_pid"));
+}
 
+
+// Get unique values from the JSON for given variable
 function getUniqueValues(variable_name){
     var uniqueValues = [];
     for(i = 0; i< data.length; i++){
@@ -17,8 +30,9 @@ function getUniqueValues(variable_name){
         }
     }
     return uniqueValues;
-};
+}
 
+// Get parent class from given function call name
 function getClassName(data){
     var process = ["new_pid","nt_create_user_process","nt_terminate_process"];
     var file = ["nt_create_file","nt_read_file","nt_write_file","nt_delete_file"];
@@ -45,4 +59,4 @@ function getClassName(data){
     else if(memSection.indexOf(data)!=-1){
       return "Memory Section";
     }
-};
+}
