@@ -11,12 +11,17 @@ function dataLoaded(result){
         return {
             instr: d.instr,
             call_name: d.call_name,
-            pid: d.pid
+            pid: d.pid,
+            pname: d.pname
         }
     });
 
-
+    
     console.log(getUniqueValues("call_name"));
+    console.log(getUniqueValues("pid"));
+    console.log(getUniqueValues("pid").length);
+    console.log(getUniqueValues("pname"));
+    console.log(getUniqueValues("pname").length);
     console.log(getClassName("new_pid"));
 }
 
