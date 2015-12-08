@@ -118,11 +118,20 @@ function initializelist(){
 	var lscaleX=d3.scale.linear()
 				.range([0,width-50])
 				.domain([0,d3.max(list_map,function(d){ return d;})]);
-				
+
+	var hscale = d3.scale.linear()
+				.domain([0,120])
+				.range([0,120]);
+	
 	var xaxis=d3.svg.axis()
 				.scale(lscaleX)
 				.ticks(3)
 				.orient("top");
+				
+	var yaxis=d3.svg.axis()
+				.scale(hscale)
+				.ticks(0)
+				.orient("left");
 				
 	canvas.selectAll("rect")
 				.data(list_map)
@@ -133,10 +142,25 @@ function initializelist(){
 						return lscaleX(d); })
 					.attr("height", 19)
 					.attr("y", function(d,i){ return i*20; })
-					.attr("fill", "steelblue")
-					.on("click",function(d){
+					.attr("fill", "red")
+					.on("mouseover",function(d){
+						
+						d3.select(this).attr("fill","blue");
+						d3.select("#tooltip").select("#count").text("No. of Calls: "+d);
+						d3.select("#tooltip").style({
+                            
+                            'display': 'block',
+                            'top': d3.event.y + 10,
+                            'left': d3.event.x + 10
+                        });
+					})
+					.on("mouseout",function(d){
 						
 						d3.select(this).attr("fill","red");
+						d3.select("#tooltip").style({
+                            
+                            'display': 'none'
+                        });
 					});
 					
 	canvas.selectAll("text")
@@ -152,6 +176,11 @@ function initializelist(){
 	canvas.append("g")
 				.attr("class", "axis")
 				.call(xaxis);
+				
+	canvas.append("g")
+				.attr("transform","translate(-1,0)")
+				.attr("class", "axis")
+				.call(yaxis);			
 }
 
 // Get unique values from the JSON for given variable
