@@ -1,6 +1,8 @@
 var data = null;
-d3.csv("../MalwareVis/data/7cd6edef-0b8c-4f6c-95ac-7b4e799c54a4.csv", function(result){
+var list_map=[];
+d3.csv("../InfoVis-Project/data/7cd6edef-0b8c-4f6c-95ac-7b4e799c54a4.csv", function(result){
     dataLoaded(result);
+	initializelist();
 });
 
 function dataLoaded(result){
@@ -15,8 +17,9 @@ function dataLoaded(result){
             pname: d.pname
         }
     });
-
-    
+	
+    listdatacollector();
+	
     console.log(getUniqueValues("call_name"));
     console.log(getUniqueValues("pid"));
     console.log(getUniqueValues("pid").length);
@@ -25,6 +28,131 @@ function dataLoaded(result){
     console.log(getClassName("new_pid"));
 }
 
+// To parse data for the list
+function listdatacollector(){
+	
+	var list_data=data.filter(function(d){
+		
+		return d.pname == "bbc03a5638e801";
+	});
+	var pdata=list_data.filter(function(d){
+		
+		return (d.call_name=="new_pid"||d.call_name=="nt_create_user_process"||d.call_name=="nt_terminate_process");
+	});
+	var count = 0;
+	for (var k in pdata) {
+		if (pdata.hasOwnProperty(k)) {
+			++count;
+		}
+	}
+	list_map[0]=count;
+	var pdata=list_data.filter(function(d){
+		
+		return (d.call_name=="nt_create_file"||d.call_name=="nt_read_file"||d.call_name=="nt_write_file"||d.call_name=="nt_delete_file");
+	});
+	var count = 0;
+	for (var k in pdata) {
+		if (pdata.hasOwnProperty(k)) {
+			++count;
+		}
+	}
+	list_map[1]=count;
+	var pdata=list_data.filter(function(d){
+		
+		return (d.call_name=="nt_create_key"||d.call_name=="nt_create_key_transacted"||d.call_name=="nt_open_key"||d.call_name=="nt_open_key_ex"||d.call_name=="nt_open_key_transacted"||d.call_name=="nt_open_key_transacted_ex"||d.call_name=="nt_delete_key"||d.call_name=="nt_query_key");
+	});
+	var count = 0;
+	for (var k in pdata) {
+		if (pdata.hasOwnProperty(k)) {
+			++count;
+		}
+	}
+	list_map[2]=count;
+	var pdata=list_data.filter(function(d){
+		
+		return (d.call_name=="nt_create_section"||d.call_name=="nt_open_section"||d.call_name=="nt_map_view_of_section");
+	});
+	var count = 0;
+	for (var k in pdata) {
+		if (pdata.hasOwnProperty(k)) {
+			++count;
+		}
+	}
+	list_map[3]=count;
+	var pdata=list_data.filter(function(d){
+		
+		return (d.call_name=="nt_read_virtual_memory"||d.call_name=="nt_write_virtual_memory");
+	});
+	var count = 0;
+	for (var k in pdata) {
+		if (pdata.hasOwnProperty(k)) {
+			++count;
+		}
+	}
+	list_map[4]=count;
+	var pdata=list_data.filter(function(d){
+		
+		return (d.call_name=="nt_create_port"||d.call_name=="nt_connect_port"||d.call_name=="nt_listen_port"||d.call_name=="nt_accept_connect_port"||d.call_name=="nt_complete_connect_port"||d.call_name=="nt_request_port"||d.call_name=="nt_request_wait_reply_port"||d.call_name=="nt_reply_port"||d.call_name=="nt_reply_wait_reply_port"||d.call_name=="nt_reply_wait_receive_port"||d.call_name=="nt_impersonate_client_of_port");
+	});
+	var count = 0;
+	for (var k in pdata) {
+		if (pdata.hasOwnProperty(k)) {
+			++count;
+		}
+	}
+	list_map[5]=count;
+	console.log(list_map);
+}
+
+// To initialize the SVG data
+function initializelist(){
+	
+	var list = ["process","file","registry","section","memory","port"];
+	var width=300, height=200;
+	var canvas = d3.select("#bar-chart")
+				.attr("width", width)
+				.attr("height", height)
+				.append("g")
+				.attr("transform","translate(48,20)");
+
+	var lscaleX=d3.scale.linear()
+				.range([0,width-50])
+				.domain([0,d3.max(list_map,function(d){ return d;})]);
+				
+	var xaxis=d3.svg.axis()
+				.scale(lscaleX)
+				.ticks(3)
+				.orient("top");
+				
+	canvas.selectAll("rect")
+				.data(list_map)
+				.enter()
+					.append("rect")
+					.attr("width", function(d) { 
+						
+						return lscaleX(d); })
+					.attr("height", 19)
+					.attr("y", function(d,i){ return i*20; })
+					.attr("fill", "steelblue")
+					.on("click",function(d){
+						
+						d3.select(this).attr("fill","red");
+					});
+					
+	canvas.selectAll("text")
+				.data(list_map)
+				.enter()
+					.append("text")
+					.attr("y", function(d,i){ return i*20+10;})
+					.attr("x", function(d,i){ return -40;})
+					.attr("font-family", "sans-serif")
+					.attr("font-size", "10px")
+					.text(function(d, i){ return list[i]; });
+					
+	canvas.append("g")
+				.attr("class", "axis")
+				.call(xaxis);
+}
 
 // Get unique values from the JSON for given variable
 function getUniqueValues(variable_name){
