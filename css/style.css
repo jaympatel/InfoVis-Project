@@ -25,7 +25,7 @@ body {
 }
 
 #behaviour-chart-container {
-  height: 700px;
+  height: 600px;
   width: 700px;
   border:1px solid #000;
   overflow: scroll;
@@ -33,9 +33,39 @@ body {
  }
 
  #bar-chart-container {
-  height: 700px;
+  height: 400px;
   width: 400px;
   border:1px solid #000;
   overflow: scroll;
   float:right;
  }
+
+ .process {
+    fill: #DF4949; 
+    background: #DF4949;
+}
+
+.file {
+    fill: #E27A3F; 
+    background: #E27A3F;
+}
+
+.registry { 
+    fill: #EFC94C; 
+    background: #EFC94C;
+}
+
+.memory-section { 
+    fill: #9B59B6; 
+    background:  #9B59B6;
+}
+
+.virtual-memory {
+    fill: #F495A3; 
+    background: #F495A3;
+}
+
+.ipc { 
+    fill: #45B29D; 
+    background: #45B29D;
+}

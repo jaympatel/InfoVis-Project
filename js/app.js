@@ -21,10 +21,11 @@ function dataLoaded(result)
             instr: d.instr,
             call_name: d.call_name,
             pid: d.pid,
-            pname: d.pname
+            pname: d.pname,
+            call_category: getClassName(d.call_name)
         }
     });
-    
+
     var minTime = d3.max(data, function(d) { return d.instr; });
     var maxTime = d3.min(data, function(d) { return d.instr; });
 
@@ -42,21 +43,19 @@ function dataLoaded(result)
 }
 
 function generateBehaviourGraph(){
-    // var slidercanvas=d3.select('body').select('#thread-graph').attr('height',10)
-    //     .attr('width',50);
-        // var a=d3.slider();
-        // slidercanvas.append(a);
-    datalength=data.length;
-    noofrectangles=datalength/400;
-     data.sort(function(a, b) { return a.instr - b.instr });
+
+    dataLength = data.length;
+    var noOfCallPerLine = 400;
+    noOfLines = dataLength/noOfCallPerLine;
+    data.sort(function(a, b) { return a.instr - b.instr });
      
         var canvas=d3.select('#behaviour-chart')
-        .attr('height',(noofrectangles+1)*20)
-        .attr('width',650);
+        .attr('height',(noOfLines+1)*20)
+        .attr('width',700);
         
-        for(j=0;j<noofrectangles;j++)
+        for(j=0;j<noOfLines;j++)
         {
-            newdata=data.slice(j*400,Math.min(datalength,j*400+399));
+            newdata=data.slice(j*noOfCallPerLine,Math.min(dataLength,j*noOfCallPerLine+(noOfCallPerLine-1)));
       
             newdata.forEach(function(d,i){
             canvas.append('rect')
@@ -64,16 +63,7 @@ function generateBehaviourGraph(){
                 .attr('x',i)
                 .attr('width',1)
                 .attr('height','15px')
-                .style('fill',function(){
-                    if(d.call_name=='new_pid')
-                    {
-                        return 'red';
-                    }
-                    else
-                    {
-                        return 'blue';
-                    }
-                });
+                .attr('class',getClassName(d.call_name));
             });
         }
 
@@ -255,22 +245,22 @@ function getClassName(data){
     var memSection = ["nt_create_section","nt_open_section","nt_map_view_of_section"];
     
     if(process.indexOf(data)!=-1){
-      return "Process";
+      return "process";
     }
     else if(file.indexOf(data)!=-1){
-      return "File";
+      return "file";
     }
     else if(registry.indexOf(data)!=-1){
-      return "Registry";
+      return "registry";
     }
     else if(virtual.indexOf(data)!=-1){
-      return "Virtual Memory";
+      return "virtual-memory";
     }
     else if(ipc.indexOf(data)!=-1){
-      return "IPC";
+      return "ipc";
     }
     else if(memSection.indexOf(data)!=-1){
-      return "Memory Section";
+      return "memory-section";
     }
 }
 
