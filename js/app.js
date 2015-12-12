@@ -1,6 +1,6 @@
 var data = null;
 var list_map=[];
-d3.csv("../InfoVis-Project/data/7cd6edef-0b8c-4f6c-95ac-7b4e799c54a4.csv", function(result){
+d3.csv("/data/7cd6edef-0b8c-4f6c-95ac-7b4e799c54a4.csv", function(result){
     dataLoaded(result);
 	initializelist();
 });
@@ -39,6 +39,7 @@ function listdatacollector(){
 		
 		return (d.call_name=="new_pid"||d.call_name=="nt_create_user_process"||d.call_name=="nt_terminate_process");
 	});
+    console.log(pdata);
 	var count = 0;
 	for (var k in pdata) {
 		if (pdata.hasOwnProperty(k)) {
