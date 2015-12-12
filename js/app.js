@@ -1,6 +1,7 @@
 var data = null, list=[];
 var list_map=[], th=null;
 var width=300, height=200;
+var active_api=null;
 d3.csv("../InfoVis-Project/data/7cd6edef-0b8c-4f6c-95ac-7b4e799c54a4.csv", function(result){
     dataLoaded(result);
 	initializelist();
@@ -17,8 +18,21 @@ function dataLoaded(result)
 			call_category: getClassName(d.call_name)
         }
     });
+    listdatacollector();
+    loadRectangle();
+	
+    // console.log(getUniqueValues("call_name"));
+    // console.log(getUniqueValues("pid"));
+    // console.log(getUniqueValues("pid").length);
+    // console.log(getUniqueValues("pname"));
+    // console.log(getUniqueValues("pname").length);
+    // console.log(getClassName("new_pid"));
 
-    // var slidercanvas=d3.select('body').select('#thread-graph').attr('height',10)
+}
+
+function loadRectangle(){
+
+	 // var slidercanvas=d3.select('body').select('#thread-graph').attr('height',10)
     //     .attr('width',50);
         // var a=d3.slider();
         // slidercanvas.append(a);
@@ -52,37 +66,27 @@ function dataLoaded(result)
                 });
             });
         }
-
-    
-
-	
-    listdatacollector();
-	
-    // console.log(getUniqueValues("call_name"));
-    // console.log(getUniqueValues("pid"));
-    // console.log(getUniqueValues("pid").length);
-    // console.log(getUniqueValues("pname"));
-    // console.log(getUniqueValues("pname").length);
-    // console.log(getClassName("new_pid"));
-
 }
 
 //To add selection of bar to map
 function mapadd(){
 	
-	d3.select("#behaviour-chart")
-			.attr("width", width)
-			.attr("height", height)
-					.append("text")
-					.attr("y", function(d, i){ return i+10;})
-					.text(function(d){ console.log(d); return th.id; });
-			
+	if(active_api==null)							// to check if the data is already selected
+		active_api=th.id;						
+	else{
+
+		if((active_api).indexOf(th.id)==-1){
+
+			active_api=active_api.concat(th.id);
+			console.log("added "+active_api);
+		}
+	}	
 }
 
 //To remove selection of bar to map
 function mapremove(){
 	
-	console.log("remove:"+th.id);
+
 }
 
 // To parse data for the list
@@ -161,7 +165,14 @@ function listdatacollector(){
 	list_map[5]=count;
 }
 
-// To initialize the SVG data
+function updatelist_data(){							// to update the bar graphs
+													// only need to update the list_map value which is a globle variable
+	//list_map[0]-=1000;
+	d3.select("#bar-chart").selectAll("*").remove();
+	initializelist();		
+}
+
+// To initialize the SVG for bar graph data
 function initializelist(){
 	
 	list = ["process","file","registry","section","memory","port"];
@@ -202,7 +213,7 @@ function initializelist(){
 					.attr("id",function(d,i){ return list[i];})
 					.on("mouseover",function(d){
 						
-						//d3.select(this).attr("fill","blue");
+						d3.select(this).attr("fill","blue");
 						d3.select("#tooltip").select("#count").text("No. of Calls: "+d);
 						d3.select("#tooltip").style({
                             
@@ -213,7 +224,7 @@ function initializelist(){
 					})
 					.on("mouseout",function(d){
 						
-						//d3.select(this).attr("fill","red");
+						d3.select(this).attr("fill","red");
 						d3.select("#tooltip").style({
                             
                             'display': 'none'
@@ -223,7 +234,8 @@ function initializelist(){
 						
 						th=this;
 						d3.select(this).style("opacity",1.0);
-						mapadd();
+						updatelist_data();
+						//mapadd();
 					})
 					.on("contextmenu",function(d){
 						
