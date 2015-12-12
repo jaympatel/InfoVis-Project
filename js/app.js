@@ -6,10 +6,8 @@ d3.csv("../InfoVis-Project/data/7cd6edef-0b8c-4f6c-95ac-7b4e799c54a4.csv", funct
 	initializelist();
 });
 
-function dataLoaded(result){
-    // console.log(result.length);
-
-    //converting data to JSON
+function dataLoaded(result)
+{
     data = result.map(function(d){
         return {
             instr: d.instr,
@@ -20,14 +18,53 @@ function dataLoaded(result){
         }
     });
 
-    listdatacollector();
+    // var slidercanvas=d3.select('body').select('#thread-graph').attr('height',10)
+    //     .attr('width',50);
+        // var a=d3.slider();
+        // slidercanvas.append(a);
+    datalength=data.length;
+    noofrectangles=datalength/200;
+     data.sort(function(a, b) { return a.instr - b.instr });
+     
+        var canvas=d3.select('#behaviour-chart')
+        .attr('height',noofrectangles*20)
+        .attr('width',250);
+        
+        for(j=0;j<noofrectangles;j++)
+        {
+            newdata=data.slice(j*200,j*200+199);
+      
+            newdata.forEach(function(d,i){
+            canvas.append('rect')
+                .attr('y',j*20)
+                .attr('x',i)
+                .attr('width',1)
+                .attr('height','15px')
+                .style('fill',function(){
+                    if(d.call_name=='new_pid')
+                    {
+                        return 'red';
+                    }
+                    else
+                    {
+                        return 'blue';
+                    }
+                });
+            });
+        }
 
-    console.log(getUniqueValues("call_name"));
-    console.log(getUniqueValues("pid"));
-    console.log(getUniqueValues("pid").length);
-    console.log(getUniqueValues("pname"));
-    console.log(getUniqueValues("pname").length);
-    console.log(getClassName("new_pid"));
+    
+
+	
+    listdatacollector();
+	
+    // console.log(getUniqueValues("call_name"));
+    // console.log(getUniqueValues("pid"));
+    // console.log(getUniqueValues("pid").length);
+    // console.log(getUniqueValues("pname"));
+    // console.log(getUniqueValues("pname").length);
+    // console.log(getClassName("new_pid"));
+
 }
 
 //To add selection of bar to map
@@ -59,6 +96,7 @@ function listdatacollector(){
 		
 		return (d.call_name=="new_pid"||d.call_name=="nt_create_user_process"||d.call_name=="nt_terminate_process");
 	});
+    console.log(pdata);
 	var count = 0;
 	for (var k in pdata) {
 		if (pdata.hasOwnProperty(k)) {
