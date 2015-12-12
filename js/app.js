@@ -5,6 +5,15 @@ d3.csv("/data/7cd6edef-0b8c-4f6c-95ac-7b4e799c54a4.csv", function(result){
 	initializelist();
 });
 
+function initiateSlider(minTime, maxTime){
+    console.log(minTime);
+    console.log(maxTime);
+    d3.select('#time-slider').call(d3.slider().axis(true).value([minTime, maxTime]).min(minTime).max(maxTime).on("slide", function(evt, value) {
+      console.log(value[ 0 ]);
+      console.log(value[ 1 ]);
+    }));
+}
+
 function dataLoaded(result)
 {
     data = result.map(function(d){
@@ -15,22 +24,39 @@ function dataLoaded(result)
             pname: d.pname
         }
     });
+    
+    var minTime = d3.max(data, function(d) { return d.instr; });
+    var maxTime = d3.min(data, function(d) { return d.instr; });
 
+    initiateSlider(minTime, maxTime);
+    listdatacollector();
+    generateBehaviourGraph();
+	
+    // console.log(getUniqueValues("call_name"));
+    // console.log(getUniqueValues("pid"));
+    // console.log(getUniqueValues("pid").length);
+    // console.log(getUniqueValues("pname"));
+    // console.log(getUniqueValues("pname").length);
+    // console.log(getClassName("new_pid"));
+
+}
+
+function generateBehaviourGraph(){
     // var slidercanvas=d3.select('body').select('#thread-graph').attr('height',10)
     //     .attr('width',50);
         // var a=d3.slider();
         // slidercanvas.append(a);
     datalength=data.length;
-    noofrectangles=datalength/200;
+    noofrectangles=datalength/400;
      data.sort(function(a, b) { return a.instr - b.instr });
      
         var canvas=d3.select('#behaviour-chart')
-        .attr('height',noofrectangles*20)
-        .attr('width',250);
+        .attr('height',(noofrectangles+1)*20)
+        .attr('width',650);
         
         for(j=0;j<noofrectangles;j++)
         {
-            newdata=data.slice(j*200,j*200+199);
+            newdata=data.slice(j*400,Math.min(datalength,j*400+399));
       
             newdata.forEach(function(d,i){
             canvas.append('rect')
@@ -51,20 +77,7 @@ function dataLoaded(result)
             });
         }
 
-    
-
-	
-    listdatacollector();
-	
-    // console.log(getUniqueValues("call_name"));
-    // console.log(getUniqueValues("pid"));
-    // console.log(getUniqueValues("pid").length);
-    // console.log(getUniqueValues("pname"));
-    // console.log(getUniqueValues("pname").length);
-    // console.log(getClassName("new_pid"));
-
 }
-
 // To parse data for the list
 function listdatacollector(){
 	
@@ -259,4 +272,12 @@ function getClassName(data){
     else if(memSection.indexOf(data)!=-1){
       return "Memory Section";
     }
+}
+
+
+// Reset the slider and all graph
+function resetGraph(){
+    d3.select("#handle-one").style("left","0%");
+    d3.select("#handle-two").style("left","100%");
+    d3.select(".d3-slider-range").style("left","0%").style("right","0%");
 }
