@@ -5,10 +5,8 @@ d3.csv("/data/7cd6edef-0b8c-4f6c-95ac-7b4e799c54a4.csv", function(result){
 	initializelist();
 });
 
-function dataLoaded(result){
-    // console.log(result.length);
-
-    //converting data to JSON
+function dataLoaded(result)
+{
     data = result.map(function(d){
         return {
             instr: d.instr,
@@ -17,6 +15,44 @@ function dataLoaded(result){
             pname: d.pname
         }
     });
+
+    // var slidercanvas=d3.select('body').select('#thread-graph').attr('height',10)
+    //     .attr('width',50);
+        // var a=d3.slider();
+        // slidercanvas.append(a);
+    datalength=data.length;
+    noofrectangles=datalength/200;
+     data.sort(function(a, b) { return a.instr - b.instr });
+     
+        var canvas=d3.select('#behaviour-chart')
+        .attr('height',noofrectangles*20)
+        .attr('width',250);
+        
+        for(j=0;j<noofrectangles;j++)
+        {
+            newdata=data.slice(j*200,j*200+199);
+      
+            newdata.forEach(function(d,i){
+            canvas.append('rect')
+                .attr('y',j*20)
+                .attr('x',i)
+                .attr('width',1)
+                .attr('height','15px')
+                .style('fill',function(){
+                    if(d.call_name=='new_pid')
+                    {
+                        return 'red';
+                    }
+                    else
+                    {
+                        return 'blue';
+                    }
+                });
+            });
+        }
+
+    
+
 	
     listdatacollector();
 	
@@ -26,6 +62,7 @@ function dataLoaded(result){
     console.log(getUniqueValues("pname"));
     console.log(getUniqueValues("pname").length);
     console.log(getClassName("new_pid"));
+
 }
 
 // To parse data for the list
@@ -184,42 +221,8 @@ function initializelist(){
 				.call(yaxis);			
 }
 
-// Get unique values from the JSON for given variable
-function getUniqueValues(variable_name){
-    var uniqueValues = [];
-    for(i = 0; i< data.length; i++){
-        if(uniqueValues.indexOf(data[i][variable_name]) === -1){
-            uniqueValues.push(data[i][variable_name]);
-        }
-    }
-    return uniqueValues;
-}
 
-// Get parent class from given function call name
-function getClassName(data){
-    var process = ["new_pid","nt_create_user_process","nt_terminate_process"];
-    var file = ["nt_create_file","nt_read_file","nt_write_file","nt_delete_file"];
-    var registry = ["nt_create_key", "nt_create_key_transacted", "nt_open_key", "nt_open_key_ex", "nt_open_key_transacted", "nt_open_key_transacted_ex","nt_delete_key","nt_query_key"];
-    var virtual = ["nt_read_virtual_memory","nt_write_virtual_memory"];
-    var ipc = ["nt_create_port","nt_connect_port","nt_listen_port","nt_accept_connect_port","nt_complete_connect_port","nt_request_port","nt_request_wait_reply_port","nt_reply_port","nt_reply_wait_reply_port","nt_reply_wait_receive_port","nt_impersonate_client_of_port"];
-    var memSection = ["nt_create_section","nt_open_section","nt_map_view_of_section"];
-    
-    if(process.indexOf(data)!=-1){
-      return "Process";
-    }
-    else if(file.indexOf(data)!=-1){
-      return "File";
-    }
-    else if(registry.indexOf(data)!=-1){
-      return "Registry";
-    }
-    else if(virtual.indexOf(data)!=-1){
-      return "Virtual Memory";
-    }
-    else if(ipc.indexOf(data)!=-1){
-      return "IPC";
-    }
-    else if(memSection.indexOf(data)!=-1){
-      return "Memory Section";
-    }
-}
+              
+
+
+
