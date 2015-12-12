@@ -1,5 +1,6 @@
-var data = null;
-var list_map=[];
+var data = null, list=[];
+var list_map=[], th=null;
+var width=300, height=200;
 d3.csv("../InfoVis-Project/data/7cd6edef-0b8c-4f6c-95ac-7b4e799c54a4.csv", function(result){
     dataLoaded(result);
 	initializelist();
@@ -14,18 +15,37 @@ function dataLoaded(result){
             instr: d.instr,
             call_name: d.call_name,
             pid: d.pid,
-            pname: d.pname
+            pname: d.pname,
+			call_category: getClassName(d.call_name)
         }
     });
-	
+
     listdatacollector();
-	
+
     console.log(getUniqueValues("call_name"));
     console.log(getUniqueValues("pid"));
     console.log(getUniqueValues("pid").length);
     console.log(getUniqueValues("pname"));
     console.log(getUniqueValues("pname").length);
     console.log(getClassName("new_pid"));
+}
+
+//To add selection of bar to map
+function mapadd(){
+	
+	d3.select("#behaviour-chart")
+			.attr("width", width)
+			.attr("height", height)
+					.append("text")
+					.attr("y", function(d, i){ return i+10;})
+					.text(function(d){ console.log(d); return th.id; });
+			
+}
+
+//To remove selection of bar to map
+function mapremove(){
+	
+	console.log("remove:"+th.id);
 }
 
 // To parse data for the list
@@ -101,14 +121,12 @@ function listdatacollector(){
 		}
 	}
 	list_map[5]=count;
-	console.log(list_map);
 }
 
 // To initialize the SVG data
 function initializelist(){
 	
-	var list = ["process","file","registry","section","memory","port"];
-	var width=300, height=200;
+	list = ["process","file","registry","section","memory","port"];
 	var canvas = d3.select("#bar-chart")
 				.attr("width", width)
 				.attr("height", height)
@@ -143,9 +161,10 @@ function initializelist(){
 					.attr("height", 19)
 					.attr("y", function(d,i){ return i*20; })
 					.attr("fill", "red")
+					.attr("id",function(d,i){ return list[i];})
 					.on("mouseover",function(d){
 						
-						d3.select(this).attr("fill","blue");
+						//d3.select(this).attr("fill","blue");
 						d3.select("#tooltip").select("#count").text("No. of Calls: "+d);
 						d3.select("#tooltip").style({
                             
@@ -156,11 +175,24 @@ function initializelist(){
 					})
 					.on("mouseout",function(d){
 						
-						d3.select(this).attr("fill","red");
+						//d3.select(this).attr("fill","red");
 						d3.select("#tooltip").style({
                             
                             'display': 'none'
                         });
+					})
+					.on("click",function(d){
+						
+						th=this;
+						d3.select(this).style("opacity",1.0);
+						mapadd();
+					})
+					.on("contextmenu",function(d){
+						
+						d3.event.preventDefault();
+						th=this;
+						d3.select(this).style("opacity",0.5);
+						mapremove();
 					});
 					
 	canvas.selectAll("text")
@@ -204,21 +236,21 @@ function getClassName(data){
     var memSection = ["nt_create_section","nt_open_section","nt_map_view_of_section"];
     
     if(process.indexOf(data)!=-1){
-      return "Process";
+      return "process";
     }
     else if(file.indexOf(data)!=-1){
-      return "File";
+      return "file";
     }
     else if(registry.indexOf(data)!=-1){
-      return "Registry";
+      return "registry";
     }
     else if(virtual.indexOf(data)!=-1){
-      return "Virtual Memory";
+      return "memory";
     }
     else if(ipc.indexOf(data)!=-1){
-      return "IPC";
+      return "port";
     }
     else if(memSection.indexOf(data)!=-1){
-      return "Memory Section";
+      return "section";
     }
 }
