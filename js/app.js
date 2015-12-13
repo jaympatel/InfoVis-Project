@@ -492,7 +492,7 @@ function initializelist(){
 function getCallsDataForCallCategory(callCategory){
     var temp = data.slice();
     temp = temp.filter(function(d){
-        return d.call_category==callCategory;
+        return d.call_category==callCategory && d.instr>minTime && d.instr<maxTime;
     });
     return temp;
 }
