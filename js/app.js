@@ -10,13 +10,23 @@ function initiateSlider(minTime, maxTime){
     console.log(minTime);
     console.log(maxTime);
     d3.select('#time-slider').call(d3.slider().axis(true).value([minTime, maxTime]).min(minTime).max(maxTime).on("slideend", function(evt, value) {
-      console.log(value[ 0 ]);
-      console.log(value[ 1 ]);
       listdatacollector(value[0],value[1]);
-      updatelist_data()
+      updatelist_data();
+      var minTime = parseInt(value[ 0 ]);
+      var maxTime = parseInt(value[ 1 ]);
+      var temp = getDataForTimeFrame(minTime, maxTime);
+      generateThreadGraph([temp],minTime,maxTime);
+
     }));
 }
 
+function getDataForTimeFrame(minTime, maxTime){
+    var temp = data.slice();
+    temp = temp.filter(function(d){
+        return d.instr>minTime && d.instr<maxTime;
+    });
+    return temp;
+}
 function dataLoaded(result)
 {
     data = result.map(function(d){
@@ -44,6 +54,8 @@ function dataLoaded(result)
     listdatacollector(minTime, maxTime);
     initializelist();
     generateBehaviourGraph();
+    var temp = data.slice();
+    generateThreadGraph([temp],minTime,maxTime);
 	
     // console.log(getUniqueValues("call_name"));
     // console.log(getUniqueValues("pid"));
@@ -52,6 +64,125 @@ function dataLoaded(result)
     // console.log(getUniqueValues("pname").length);
     // console.log(getClassName("new_pid"));
 
+}
+
+function generateThreadGraph(graphData,minTime,maxTime){
+    // graphData = [[{instr: 2560842, call_name: "new_pid"},{instr: 69058869, call_name: "nt_create_key", pid: "1780"}]];
+//************************************************************
+// Create Margins and Axis and hook our zoom function
+//************************************************************
+var yLabels = [ "","new_pid","nt_create_user_process","nt_terminate_process","nt_create_file","nt_read_file","nt_write_file","nt_delete_file","nt_create_key", "nt_create_key_transacted", "nt_open_key", "nt_open_key_ex", "nt_open_key_transacted", "nt_open_key_transacted_ex","nt_delete_key","nt_query_key","nt_read_virtual_memory","nt_write_virtual_memory","nt_create_port","nt_connect_port","nt_listen_port","nt_accept_connect_port","nt_complete_connect_port","nt_request_port","nt_request_wait_reply_port","nt_reply_port","nt_reply_wait_reply_port","nt_reply_wait_receive_port","nt_impersonate_client_of_port","nt_create_section","nt_open_section","nt_map_view_of_section"," "];
+
+var margin = {top: 20, right: 30, bottom: 30, left: 170},
+    width = 1200 - margin.left - margin.right,
+    height = 650 - margin.top - margin.bottom;
+
+var x = d3.scale.linear()
+    .domain([minTime, maxTime])
+    .range([0, width]);
+ 
+var y = d3.scale.ordinal()
+    .domain(yLabels)
+    .rangePoints([height, 0]);
+    
+var xAxis = d3.svg.axis()
+    .scale(x)
+    .tickSize(-height)
+    .tickPadding(10)    
+    .tickSubdivide(true)    
+    .orient("bottom");  
+    
+var yAxis = d3.svg.axis()
+    .scale(y)
+    .tickPadding(10)
+    .tickSize(-width)
+    .tickSubdivide(true)    
+    .orient("left");
+      
+        
+//************************************************************
+// Generate our SVG object
+//************************************************************  
+d3.select("#thread-graph").remove();
+var svg = d3.select("#thread-chart-container").append("svg")
+    .attr("id","thread-graph")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+    .append("g")
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+ 
+svg.append("g")
+    .attr("class", "x axis")
+    .attr("transform", "translate(0," + height + ")")
+    .call(xAxis);
+ 
+svg.append("g")
+    .attr("class", "y axis")
+    .call(yAxis);
+ 
+svg.append("g")
+    .attr("class", "y axis")
+    .append("text")
+    .attr("class", "axis-label")
+    .attr("transform", "rotate(-90)")
+    .attr("y", (-margin.left) + 10)
+    .attr("x", -height/2)
+    .text('OS Call Name');    
+ 
+svg.append("clipPath")
+    .attr("id", "clip")
+    .append("rect")
+    .attr("width", width)
+    .attr("height", height);
+       
+//************************************************************
+// Create D3 line object and draw data on our SVG object
+//************************************************************
+var line = d3.svg.line()
+    .interpolate("linear")  
+    .x(function(d) { return x(d.instr); })
+    .y(function(d) { return y(d.call_name); });     
+    
+svg.selectAll('.line')
+    .data(graphData)
+    .enter()
+    .append("path")
+    .attr("class", "line")
+    .attr("clip-path", "url(#clip)")
+    .attr('stroke', function(d,i){          
+        return "steelblue";
+    })
+    .attr("d", line);    
+
+
+//************************************************************
+// Draw points on SVG object based on the data given
+//************************************************************
+var points = svg.selectAll('.dots')
+    .data(graphData)
+    .enter()
+    .append("g")
+    .attr("class", "dots")
+    .attr("clip-path", "url(#clip)");   
+ 
+points.selectAll('.dot')
+    .data(function(d, index){       
+        var a = [];
+        d.forEach(function(point,i){
+            a.push({'index': index, 'point': point});
+        });     
+        return a;
+    })
+    .enter()
+    .append('circle')
+    .attr('class','dot')
+    .attr("r", 2.5)
+    .attr('fill', function(d,i){    
+        return "steelblue";
+    })  
+    .attr("transform", function(d) { 
+        return "translate(" + x(d.point.instr) + "," + y(d.point.call_name) + ")"; }
+    );
 }
 
 function generateBehaviourGraph(){
