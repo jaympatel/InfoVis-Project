@@ -78,6 +78,10 @@ body {
     background: #45B29D;
 }
 
+.gray-color{
+    fill:#000000;
+    background: #FFFFFF;
+}
 
 .grid .tick {
   stroke: lightgrey;
