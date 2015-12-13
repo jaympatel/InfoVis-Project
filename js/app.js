@@ -67,7 +67,7 @@ function bartobehavior(keyword){
 	// .attr('class',function(){
 	// 	console.log(this.class);
 	// 	if(this.class != 'file' ){
-	// 		return 'gray-color';
+	// 		return 'white-color';
 	// 	}
 	// 	else
 	// 	{
@@ -98,12 +98,12 @@ function BarToBehaviourGraph(keyword){
                 .attr('class',function(){
                     if(parseInt(d.id) < minTime || parseInt(d.id > maxTime))
                     {
-                        return 'gray-color';
+                        return 'white-color';
                     }
                     else
                     {
                         if(d.call_category != keyword){
-                            return 'gray-color';
+                            return 'white-color';
                         }
                         else{
                             return d.call_category;
