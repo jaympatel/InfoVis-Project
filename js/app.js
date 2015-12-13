@@ -2,6 +2,9 @@ var data = null;
 var list_map=[];
 var th=null;
 var behaviorcanvas;
+var minTime=0;
+var maxTime =0;
+
 
 d3.csv("/data/7cd6edef-0b8c-4f6c-95ac-7b4e799c54a4.csv", function(result){
     dataLoaded(result);
@@ -10,8 +13,8 @@ d3.csv("/data/7cd6edef-0b8c-4f6c-95ac-7b4e799c54a4.csv", function(result){
 
 function initiateSlider(minTime, maxTime){
     d3.select('#time-slider').call(d3.slider().axis(true).value([minTime, maxTime]).min(minTime).max(maxTime).on("slideend", function(evt, value) {
-      var minTime = parseInt(value[ 0 ]);
-      var maxTime = parseInt(value[ 1 ]);
+      minTime = parseInt(value[ 0 ]);
+      maxTime = parseInt(value[ 1 ]);
       var temp = getDataForTimeFrame(minTime, maxTime);
       generateThreadGraph([temp],minTime,maxTime);
       behaviorslider(value[ 0 ],value[ 1 ]);
@@ -92,12 +95,20 @@ function BarToBehaviourGraph(keyword){
                 .attr('height','15px')
                 .attr('id',d.instr)
                 .attr('class',function(){
-                	if(d.call_category != keyword){
-                		return 'gray-color';
-                	}
-                	else{
-                		return d.call_category;
-                	}
+                    if(d.id < minTime || d.id > maxTime)
+                    {
+                        return 'gray-color';
+                    }
+                    else
+                    {
+                        if(d.call_category != keyword){
+                            return 'gray-color';
+                        }
+                        else{
+                            return d.call_category;
+                        }
+                    }
+                	
                 });
             });
         }
