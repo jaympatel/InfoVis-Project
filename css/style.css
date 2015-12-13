@@ -1,7 +1,19 @@
 body {
   font: 15px sans-serif;
-  margin: 10px;
+  margin: inherit;
 }
+
+#malware-vis{
+  background-color: #293950;
+  color: #ecf0f0;
+  font-size: 50px;
+  height: 100px;
+  padding: 20px;
+}
+.d3-slider{
+  margin: 25px;
+}
+
 .axis path,
 .axis line {
 	fill: none;
@@ -30,6 +42,8 @@ body {
   border:1px solid #000;
   overflow: scroll;
   float:left;
+  margin: 15px;
+  padding: 15px;
  }
 
  #bar-chart-container {
@@ -38,6 +52,8 @@ body {
   border:1px solid #000;
   overflow: scroll;
   float:right;
+  margin: 15px;
+  padding: 15px;
  }
 
  #thread-chart-container {
@@ -45,6 +61,8 @@ body {
   width: 1200px;
   border:1px solid #000;
   overflow: scroll;
+  margin: 15px;
+  padding: 15px;
   /*float:right;*/
  }
 
