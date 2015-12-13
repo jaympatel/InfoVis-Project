@@ -1,16 +1,17 @@
 var data = null;
 var list_map=[];
+var behaviorcanvas;
+
 d3.csv("/data/7cd6edef-0b8c-4f6c-95ac-7b4e799c54a4.csv", function(result){
     dataLoaded(result);
 	initializelist();
 });
 
 function initiateSlider(minTime, maxTime){
-    console.log(minTime);
-    console.log(maxTime);
-    d3.select('#time-slider').call(d3.slider().axis(true).value([minTime, maxTime]).min(minTime).max(maxTime).on("slide", function(evt, value) {
-      console.log(value[ 0 ]);
-      console.log(value[ 1 ]);
+    d3.select('#time-slider').call(d3.slider().axis(true).value([minTime, maxTime]).min(minTime).max(maxTime).on("slideend", function(evt, value) {
+      // console.log(value[ 0 ]);
+      // console.log(value[ 1 ]);
+      behaviorslider(value[ 0 ],value[ 1 ]);
     }));
 }
 
@@ -26,9 +27,10 @@ function dataLoaded(result)
         }
     });
 
-    var minTime = d3.max(data, function(d) { return d.instr; });
-    var maxTime = d3.min(data, function(d) { return d.instr; });
-
+    var maxTime = d3.max(data, function(d) { return d.instr; });
+    var minTime = d3.min(data, function(d) { return d.instr; });
+    // console.log(maxTime);
+    // console.log(minTime);
     initiateSlider(minTime, maxTime);
     listdatacollector();
     generateBehaviourGraph();
@@ -42,6 +44,64 @@ function dataLoaded(result)
 
 }
 
+function bartobehavior(){
+	//console.log('file');
+	d3.select('#behaviour-chart').selectAll('*').remove();
+	BarToBehaviourGraph('file');
+	console.log('hello');
+	// behaviorcanvas.selectAll('rect')
+	// .attr('class',function(){
+	// 	console.log(this.class);
+	// 	if(this.class != 'file' ){
+	// 		return 'gray-color';
+	// 	}
+	// 	else
+	// 	{
+	// 		return this.class;
+	// 	}
+	// });
+}
+
+function BarToBehaviourGraph(keyword){
+
+	dataLength = data.length;
+    var noOfCallPerLine = 400;
+    noOfLines = dataLength/noOfCallPerLine;
+
+        
+        for(j=0;j<noOfLines;j++)
+        {
+            newdata=data.slice(j*noOfCallPerLine,Math.min(dataLength,j*noOfCallPerLine+(noOfCallPerLine-1)));
+      
+            newdata.forEach(function(d,i){
+            behaviorcanvas.append('rect')
+                .attr('y',j*20)
+                .attr('x',i)
+                .attr('width',1)
+                .attr('height','15px')
+                .attr('id',d.instr)
+                .attr('class',function(){
+                	if(d.call_category != keyword){
+                		return 'gray-color';
+                	}
+                	else{
+                		return d.call_category;
+                	}
+                });
+            });
+        }
+}
+
+function behaviorslider(low,high)
+{
+	behaviorcanvas.selectAll('rect')
+	.style('fill',function(){
+		if(this.id < low || this.id > high){
+			return 'black';
+		}
+	});
+}
+
 function generateBehaviourGraph(){
 
     dataLength = data.length;
@@ -49,7 +109,7 @@ function generateBehaviourGraph(){
     noOfLines = dataLength/noOfCallPerLine;
     data.sort(function(a, b) { return a.instr - b.instr });
      
-        var canvas=d3.select('#behaviour-chart')
+        behaviorcanvas=d3.select('#behaviour-chart')
         .attr('height',(noOfLines+1)*20)
         .attr('width',700);
         
@@ -58,11 +118,12 @@ function generateBehaviourGraph(){
             newdata=data.slice(j*noOfCallPerLine,Math.min(dataLength,j*noOfCallPerLine+(noOfCallPerLine-1)));
       
             newdata.forEach(function(d,i){
-            canvas.append('rect')
+            behaviorcanvas.append('rect')
                 .attr('y',j*20)
                 .attr('x',i)
                 .attr('width',1)
                 .attr('height','15px')
+                .attr('id',d.instr)
                 .attr('class',getClassName(d.call_name));
             });
         }
