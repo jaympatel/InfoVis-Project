@@ -1,34 +1,22 @@
-<<<<<<< HEAD
-var data = null, list=[];
-var list_map=[], th=null;
+var data = null, list=[];;
 var width=300, height=200;
-var active_api=null;
-d3.csv("../InfoVis-Project/data/7cd6edef-0b8c-4f6c-95ac-7b4e799c54a4.csv", function(result){
-=======
-var data = null;
 var list_map=[];
+var active_api=null;
 var th=null;
 var behaviorcanvas;
 var minTime=0;
 var maxTime =0;
 
-
 d3.csv("/data/7cd6edef-0b8c-4f6c-95ac-7b4e799c54a4.csv", function(result){
->>>>>>> ed8feebac7165d5d82491cd051fe736e7e5d96bb
     dataLoaded(result);
 });
 
 function initiateSlider(minTime, maxTime){
     d3.select('#time-slider').call(d3.slider().axis(true).value([minTime, maxTime]).min(minTime).max(maxTime).on("slideend", function(evt, value) {
-<<<<<<< HEAD
       listdatacollector(value[0],value[1]);
       updatelist_data();
-      var minTime = parseInt(value[ 0 ]);
-      var maxTime = parseInt(value[ 1 ]);
-=======
       minTime = parseInt(value[ 0 ]);
       maxTime = parseInt(value[ 1 ]);
->>>>>>> ed8feebac7165d5d82491cd051fe736e7e5d96bb
       var temp = getDataForTimeFrame(minTime, maxTime);
       generateThreadGraph([temp],minTime,maxTime);
       behaviorslider(value[ 0 ],value[ 1 ]);
@@ -63,12 +51,7 @@ function dataLoaded(result)
     // console.log(getClassName("new_pid"));
 
     var minTime = d3.min(data, function(d) { return d.instr; });
-<<<<<<< HEAD
     var maxTime = d3.max(data, function(d) { return d.instr; });
-
-    console.log(minTime+","+maxTime)
-=======
->>>>>>> ed8feebac7165d5d82491cd051fe736e7e5d96bb
     initiateSlider(minTime, maxTime);
     listdatacollector(minTime, maxTime);
     initializelist();
@@ -443,13 +426,9 @@ function initializelist(){
 					})
 					.attr("height", 19)
 					.attr("y", function(d,i){ return i*20; })
-<<<<<<< HEAD
-					// .attr("fill", "red")
 					.attr("class",function(d, i){
 
-						// console.log(d.call_category);
 						if(list[i]=="Process")
-							// console.log(d);
 							return "process";
 						if(list[i]=="File")
 							return "file";
@@ -463,10 +442,6 @@ function initializelist(){
 							return "ipc";
 					})
 					.attr("id",function(d,i){ return list[i];})
-=======
-					.attr("fill", "red")
-                    .attr("id",function(d,i){ return list[i];})
->>>>>>> ed8feebac7165d5d82491cd051fe736e7e5d96bb
 					.on("mouseover",function(d){
 						
 						d3.select(this).attr("fill","blue");
@@ -491,13 +466,6 @@ function initializelist(){
                             
                             'display': 'none'
                         });
-					})
-					.on("click",function(d){
-						
-						th=this;
-						d3.select(this).style("opacity",1.0);
-						//updatelist_data();
-						//mapadd();
 					})
 					.on("contextmenu",function(d){
 						
