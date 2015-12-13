@@ -40,6 +40,14 @@ body {
   float:right;
  }
 
+ #thread-chart-container {
+  height: 700px;
+  width: 1200px;
+  border:1px solid #000;
+  overflow: scroll;
+  /*float:right;*/
+ }
+
  .process {
     fill: #DF4949; 
     background: #DF4949;
@@ -74,3 +82,49 @@ body {
     fill:#000000;
     background: #FFFFFF;
 }
+
+.grid .tick {
+  stroke: lightgrey;
+  opacity: 0.7;
+  shape-rendering: crispEdges;
+}
+
+.grid path {
+  stroke-width: 0;
+}
+
+.axis path {
+  fill: none;
+  stroke: #bbb;
+  shape-rendering: crispEdges;
+}
+
+.axis text {
+  fill: #555;
+}
+
+.axis line {
+  stroke: #e7e7e7;
+  shape-rendering: crispEdges;
+}
+
+.axis .axis-label {
+  font-size: 14px;
+}
+
+.line {
+  fill: none;
+  stroke-width: 1.5px;
+}
+
+.dot {
+  /* consider the stroke-with the mouse detect radius? */
+  
+  stroke: transparent;
+  stroke-width: 10px;
+  cursor: pointer;
+}
+
+.dot:hover {
+  stroke: rgba(68, 127, 255, 0.3);
+}  
