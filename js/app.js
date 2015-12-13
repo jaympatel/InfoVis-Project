@@ -4,22 +4,46 @@ var width=300, height=200;
 var active_api=null;
 d3.csv("../InfoVis-Project/data/7cd6edef-0b8c-4f6c-95ac-7b4e799c54a4.csv", function(result){
     dataLoaded(result);
-	initializelist();
 });
+
+function initiateSlider(minTime, maxTime){
+    console.log(minTime);
+    console.log(maxTime);
+    d3.select('#time-slider').call(d3.slider().axis(true).value([minTime, maxTime]).min(minTime).max(maxTime).on("slideend", function(evt, value) {
+      console.log(value[ 0 ]);
+      console.log(value[ 1 ]);
+      listdatacollector(value[0],value[1]);
+      updatelist_data()
+    }));
+}
 
 function dataLoaded(result)
 {
     data = result.map(function(d){
         return {
-            instr: d.instr,
+            instr: parseInt(d.instr),
             call_name: d.call_name,
             pid: d.pid,
             pname: d.pname,
 			call_category: getClassName(d.call_name)
         }
     });
-    listdatacollector();
-    loadRectangle();
+	
+    // console.log(getUniqueValues("call_name"));
+    // console.log(getUniqueValues("pid"));
+    // console.log(getUniqueValues("pid").length);
+    // console.log(getUniqueValues("pname"));
+    // console.log(getUniqueValues("pname").length);
+    // console.log(getClassName("new_pid"));
+
+    var minTime = d3.min(data, function(d) { return d.instr; });
+    var maxTime = d3.max(data, function(d) { return d.instr; });
+
+    console.log(minTime+","+maxTime)
+    initiateSlider(minTime, maxTime);
+    listdatacollector(minTime, maxTime);
+    initializelist();
+    generateBehaviourGraph();
 	
     // console.log(getUniqueValues("call_name"));
     // console.log(getUniqueValues("pid"));
@@ -30,23 +54,20 @@ function dataLoaded(result)
 
 }
 
-function loadRectangle(){
+function generateBehaviourGraph(){
 
-	 // var slidercanvas=d3.select('body').select('#thread-graph').attr('height',10)
-    //     .attr('width',50);
-        // var a=d3.slider();
-        // slidercanvas.append(a);
-    datalength=data.length;
-    noofrectangles=datalength/200;
-     data.sort(function(a, b) { return a.instr - b.instr });
+    dataLength = data.length;
+    var noOfCallPerLine = 400;
+    noOfLines = dataLength/noOfCallPerLine;
+    data.sort(function(a, b) { return a.instr - b.instr });
      
         var canvas=d3.select('#behaviour-chart')
-        .attr('height',noofrectangles*20)
-        .attr('width',250);
+        .attr('height',(noOfLines+1)*20)
+        .attr('width',700);
         
-        for(j=0;j<noofrectangles;j++)
+        for(j=0;j<noOfLines;j++)
         {
-            newdata=data.slice(j*200,j*200+199);
+            newdata=data.slice(j*noOfCallPerLine,Math.min(dataLength,j*noOfCallPerLine+(noOfCallPerLine-1)));
       
             newdata.forEach(function(d,i){
             canvas.append('rect')
@@ -54,16 +75,7 @@ function loadRectangle(){
                 .attr('x',i)
                 .attr('width',1)
                 .attr('height','15px')
-                .style('fill',function(){
-                    if(d.call_name=='new_pid')
-                    {
-                        return 'red';
-                    }
-                    else
-                    {
-                        return 'blue';
-                    }
-                });
+                .attr('class',getClassName(d.call_name));
             });
         }
 }
@@ -88,19 +100,22 @@ function mapremove(){
 	
 
 }
-
 // To parse data for the list
-function listdatacollector(){
+function listdatacollector(min,max){
 	
+	console.log("min "+min+" max:"+max);
 	var list_data=data.filter(function(d){
 		
-		return d.pname == "bbc03a5638e801";
+		return (d.instr<=max && d.instr>=min);
 	});
+	// list_data=list_data.filter(function(d){
+		
+	// 	return d.pname == "bbc03a5638e801";
+	// });
 	var pdata=list_data.filter(function(d){
 		
 		return (d.call_name=="new_pid"||d.call_name=="nt_create_user_process"||d.call_name=="nt_terminate_process");
 	});
-    console.log(pdata);
 	var count = 0;
 	for (var k in pdata) {
 		if (pdata.hasOwnProperty(k)) {
@@ -108,6 +123,7 @@ function listdatacollector(){
 		}
 	}
 	list_map[0]=count;
+	console.log(count);
 	var pdata=list_data.filter(function(d){
 		
 		return (d.call_name=="nt_create_file"||d.call_name=="nt_read_file"||d.call_name=="nt_write_file"||d.call_name=="nt_delete_file");
@@ -163,6 +179,7 @@ function listdatacollector(){
 		}
 	}
 	list_map[5]=count;
+	console.log(list_map);
 }
 
 function updatelist_data(){							// to update the bar graphs
@@ -175,12 +192,12 @@ function updatelist_data(){							// to update the bar graphs
 // To initialize the SVG for bar graph data
 function initializelist(){
 	
-	list = ["process","file","registry","section","memory","port"];
+	list = ["Process","File","Registry","Memory Section","Virtual Memory","IPC"];
 	var canvas = d3.select("#bar-chart")
 				.attr("width", width)
 				.attr("height", height)
 				.append("g")
-				.attr("transform","translate(48,20)");
+				.attr("transform","translate(78,20)");
 
 	var lscaleX=d3.scale.linear()
 				.range([0,width-50])
@@ -206,10 +223,28 @@ function initializelist(){
 					.append("rect")
 					.attr("width", function(d) { 
 						
-						return lscaleX(d); })
+						return lscaleX(d); 
+					})
 					.attr("height", 19)
 					.attr("y", function(d,i){ return i*20; })
-					.attr("fill", "red")
+					// .attr("fill", "red")
+					.attr("class",function(d, i){
+
+						// console.log(d.call_category);
+						if(list[i]=="Process")
+							// console.log(d);
+							return "process";
+						if(list[i]=="File")
+							return "file";
+						if(list[i]=="Registry")
+							return "registry";
+						if(list[i]=="Memory Section")
+							return "memory-section";
+						if(list[i]=="Virtual Memory")
+							return "virtual-memory";
+						if(list[i]=="IPC")
+							return "ipc";
+					})
 					.attr("id",function(d,i){ return list[i];})
 					.on("mouseover",function(d){
 						
@@ -234,7 +269,7 @@ function initializelist(){
 						
 						th=this;
 						d3.select(this).style("opacity",1.0);
-						updatelist_data();
+						//updatelist_data();
 						//mapadd();
 					})
 					.on("contextmenu",function(d){
@@ -250,7 +285,7 @@ function initializelist(){
 				.enter()
 					.append("text")
 					.attr("y", function(d,i){ return i*20+10;})
-					.attr("x", function(d,i){ return -40;})
+					.attr("x", function(d,i){ return -75;})
 					.attr("font-family", "sans-serif")
 					.attr("font-size", "10px")
 					.text(function(d, i){ return list[i]; });
@@ -295,12 +330,20 @@ function getClassName(data){
       return "registry";
     }
     else if(virtual.indexOf(data)!=-1){
-      return "memory";
+      return "virtual-memory";
     }
     else if(ipc.indexOf(data)!=-1){
-      return "port";
+      return "ipc";
     }
     else if(memSection.indexOf(data)!=-1){
-      return "section";
+      return "memory-section";
     }
+}
+
+
+// Reset the slider and all graph
+function resetGraph(){
+    d3.select("#handle-one").style("left","0%");
+    d3.select("#handle-two").style("left","100%");
+    d3.select(".d3-slider-range").style("left","0%").style("right","0%");
 }
