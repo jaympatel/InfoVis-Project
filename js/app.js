@@ -13,10 +13,11 @@ d3.csv("C:\\Users\\Jay Desai\\InfoVis-Project\\data\\7cd6edef-0b8c-4f6c-95ac-7b4
 
 function initiateSlider(minTime, maxTime){
     d3.select('#time-slider').call(d3.slider().axis(true).value([minTime, maxTime]).min(minTime).max(maxTime).on("slideend", function(evt, value) {
+
+      minTime = parseInt(value[ 0 ]+"");
+      maxTime = parseInt(value[ 1 ]+"");
       listdatacollector(value[0],value[1]);
       updatelist_data();
-      minTime = parseInt(value[ 0 ]);
-      maxTime = parseInt(value[ 1 ]);
       var temp = getDataForTimeFrame(minTime, maxTime);
       generateThreadGraph([temp],minTime,maxTime);
       behaviorslider(value[ 0 ],value[ 1 ]);
@@ -50,8 +51,9 @@ function dataLoaded(result)
     // console.log(getUniqueValues("pname").length);
     // console.log(getClassName("new_pid"));
 
-    var minTime = d3.min(data, function(d) { return d.instr; });
-    var maxTime = d3.max(data, function(d) { return d.instr; });
+    maxTime = d3.max(data, function(d) { return d.instr; });
+    minTime = d3.min(data, function(d) { return d.instr; });
+
     initiateSlider(minTime, maxTime);
     listdatacollector(minTime, maxTime);
     initializelist();
@@ -71,13 +73,13 @@ function dataLoaded(result)
 function bartobehavior(keyword){
 	//console.log('file');
 	d3.select('#behaviour-chart').selectAll('*').remove();
-    console.log(keyword)
+    
 	BarToBehaviourGraph(keyword);
 	// behaviorcanvas.selectAll('rect')
 	// .attr('class',function(){
 	// 	console.log(this.class);
 	// 	if(this.class != 'file' ){
-	// 		return 'gray-color';
+	// 		return 'white-color';
 	// 	}
 	// 	else
 	// 	{
@@ -91,8 +93,9 @@ function BarToBehaviourGraph(keyword){
 	dataLength = data.length;
     var noOfCallPerLine = 400;
     noOfLines = dataLength/noOfCallPerLine;
-
-        
+console.log(keyword);
+        console.log(minTime);
+        console.log(maxTime);
         for(j=0;j<noOfLines;j++)
         {
             newdata=data.slice(j*noOfCallPerLine,Math.min(dataLength,j*noOfCallPerLine+(noOfCallPerLine-1)));
@@ -105,19 +108,19 @@ function BarToBehaviourGraph(keyword){
                 .attr('height','15px')
                 .attr('id',d.instr)
                 .attr('class',function(){
-                    if(d.id < minTime || d.id > maxTime)
-                    {
-                        return 'gray-color';
-                    }
-                    else
-                    {
+                    // if(d.id < minTime || d.id > maxTime)
+                    // {
+                    //     return 'white-color';
+                    // }
+                    // else
+                    // {
                         if(d.call_category != keyword){
-                            return 'gray-color';
+                            return 'white-color';
                         }
                         else{
                             return d.call_category;
                         }
-                    }
+                    //}
                 	
                 });
             });
@@ -428,20 +431,9 @@ function initializelist(){
 					.attr("y", function(d,i){ return i*20; })
 					.attr("class",function(d, i){
 
-						if(list[i]=="Process")
-							return "process";
-						if(list[i]=="File")
-							return "file";
-						if(list[i]=="Registry")
-							return "registry";
-						if(list[i]=="Memory Section")
-							return "memory-section";
-						if(list[i]=="Virtual Memory")
-							return "virtual-memory";
-						if(list[i]=="IPC")
-							return "ipc";
+						return getClassNameFromDisplayName(list[i]);
 					})
-					.attr("id",function(d,i){ return list[i];})
+					.attr("id",function(d,i){ return getClassNameFromDisplayName(list[i]);})
 					.on("mouseover",function(d){
 						
 						d3.select(this).attr("fill","blue");
@@ -456,7 +448,7 @@ function initializelist(){
                     .on("click", function(d){
 
                         th=this;
-                        console.log("hello"+th.id);
+                        // console.log(this.id);
                         bartobehavior(th.id)
                     })
 					.on("mouseout",function(d){
@@ -493,6 +485,21 @@ function initializelist(){
 				.attr("transform","translate(-1,0)")
 				.attr("class", "axis")
 				.call(yaxis);			
+}
+
+function getClassNameFromDisplayName(displayName){
+    if(displayName=="Process")
+        return "process";
+    if(displayName=="File")
+        return "file";
+    if(displayName=="Registry")
+        return "registry";
+    if(displayName=="Memory Section")
+        return "memory-section";
+    if(displayName=="Virtual Memory")
+        return "virtual-memory";
+    if(displayName=="IPC")
+        return "ipc";
 }
 
 // Get unique values from the JSON for given variable
