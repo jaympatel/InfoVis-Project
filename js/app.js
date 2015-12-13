@@ -7,7 +7,7 @@ var behaviorcanvas;
 var minTime=0;
 var maxTime =0;
 
-d3.csv("/data/7cd6edef-0b8c-4f6c-95ac-7b4e799c54a4.csv", function(result){
+d3.csv("C:\\Users\\Jay Desai\\InfoVis-Project\\data\\7cd6edef-0b8c-4f6c-95ac-7b4e799c54a4.csv", function(result){
     dataLoaded(result);
 });
 
