@@ -13,8 +13,8 @@ d3.csv("/data/7cd6edef-0b8c-4f6c-95ac-7b4e799c54a4.csv", function(result){
 
 function initiateSlider(minTime, maxTime){
     d3.select('#time-slider').call(d3.slider().axis(true).value([minTime, maxTime]).min(minTime).max(maxTime).on("slideend", function(evt, value) {
-      minTime = parseInt(value[ 0 ]);
-      maxTime = parseInt(value[ 1 ]);
+      minTime = parseInt(value[ 0 ]+"");
+      maxTime = parseInt(value[ 1 ]+"");
       var temp = getDataForTimeFrame(minTime, maxTime);
       generateThreadGraph([temp],minTime,maxTime);
       behaviorslider(value[ 0 ],value[ 1 ]);
@@ -41,8 +41,8 @@ function dataLoaded(result)
         }
     });
 
-    var maxTime = d3.max(data, function(d) { return d.instr; });
-    var minTime = d3.min(data, function(d) { return d.instr; });
+    maxTime = d3.max(data, function(d) { return d.instr; });
+    minTime = d3.min(data, function(d) { return d.instr; });
     initiateSlider(minTime, maxTime);
     listdatacollector();
     generateBehaviourGraph();
@@ -82,7 +82,8 @@ function BarToBehaviourGraph(keyword){
     var noOfCallPerLine = 400;
     noOfLines = dataLength/noOfCallPerLine;
 
-        
+        console.log(minTime);
+        console.log(maxTime);
         for(j=0;j<noOfLines;j++)
         {
             newdata=data.slice(j*noOfCallPerLine,Math.min(dataLength,j*noOfCallPerLine+(noOfCallPerLine-1)));
@@ -95,7 +96,7 @@ function BarToBehaviourGraph(keyword){
                 .attr('height','15px')
                 .attr('id',d.instr)
                 .attr('class',function(){
-                    if(d.id < minTime || d.id > maxTime)
+                    if(parseInt(d.id) < minTime || parseInt(d.id > maxTime))
                     {
                         return 'gray-color';
                     }
@@ -400,7 +401,6 @@ function initializelist(){
                     .on("click", function(d){
 
                         th=this;
-                        console.log("hello"+th.id);
                         bartobehavior(th.id)
                     })
 					.on("mouseout",function(d){
