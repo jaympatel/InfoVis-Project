@@ -67,7 +67,7 @@ body {
  }
 
  .process {
-    fill: #DF4949; 
+    fill: #EFC94C ; 
     background: #DF4949;
 }
 
@@ -77,17 +77,17 @@ body {
 }
 
 .registry { 
-    fill: #EFC94C; 
+    fill: #DF4949; 
     background: #EFC94C;
 }
 
 .memory-section { 
-    fill: #9B59B6; 
+    fill: #beaed4; 
     background:  #9B59B6;
 }
 
 .virtual-memory {
-    fill: #F495A3; 
+    fill: #386cb0; 
     background: #F495A3;
 }
 
@@ -97,7 +97,7 @@ body {
 }
 
 .white-color{
-    fill:#FFFFFF;
+    fill:#F3F2F2;
     background: #FFFFFF;
 }
 
