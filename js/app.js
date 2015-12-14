@@ -7,7 +7,7 @@ var behaviorcanvas;
 var minTime=0;
 var maxTime =0;
 
-d3.csv("C:\\Users\\Jay Desai\\InfoVis-Project\\data\\7cd6edef-0b8c-4f6c-95ac-7b4e799c54a4.csv", function(result){
+d3.csv("/data/7cd6edef-0b8c-4f6c-95ac-7b4e799c54a4.csv", function(result){
     dataLoaded(result);
 });
 
@@ -16,7 +16,11 @@ function initiateSlider(minTime, maxTime){
 
       minTime = parseInt(value[ 0 ]+"");
       maxTime = parseInt(value[ 1 ]+"");
-      listdatacollector(value[0],value[1]);
+      console.log(minTime);
+      console.log(maxTime);
+      var rates = getCheckedRadioValue('malware');
+      // console.log("--------"+rates);
+      listdatacollector(value[0],value[1],rates);
       updatelist_data();
       var temp = getDataForTimeFrame(minTime, maxTime);
       generateThreadGraph([temp],minTime,maxTime);
@@ -25,7 +29,15 @@ function initiateSlider(minTime, maxTime){
     }));
 }
 
+function getCheckedRadioValue(name) {
+    var elements = document.getElementsByName(name);
+
+    for (var i=0, len=elements.length; i<len; ++i)
+        if (elements[i].checked) return elements[i].value;
+}
 function getDataForTimeFrame(minTime, maxTime){
+     console.log("**"+minTime);
+      console.log("**"+maxTime);
     var temp = data.slice();
     temp = temp.filter(function(d){
         return d.instr>minTime && d.instr<maxTime;
@@ -55,7 +67,9 @@ function dataLoaded(result)
     minTime = d3.min(data, function(d) { return d.instr; });
 
     initiateSlider(minTime, maxTime);
-    listdatacollector(minTime, maxTime);
+      var rates = getCheckedRadioValue('malware');
+
+    listdatacollector(minTime, maxTime,rates);
     bargraphinitializelist();
     generateBehaviourGraph();
     var temp = data.slice();
@@ -72,15 +86,35 @@ function dataLoaded(result)
 // onclick radio button Full Data
 function selectFullData(){
 
+// console.log("full data clicked");
+// console.log(minTime);
+// console.log(maxtime);
+      var rates = getCheckedRadioValue('malware');
 
+listdatacollector(minTime,maxTime,rates);
+updatelist_data();
+var temp = getDataForTimeFrame(minTime,maxTime);
+generateThreadGraph([temp],minTime,maxTime);
 }
 
-// onclick radio button Malware Data
 function selectMalwareData(){
 
+    var rates = getCheckedRadioValue('malware');
+    listdatacollector(minTime,maxTime,rates);
+    updatelist_data();
+    var temp = getDataForMalware(minTime,maxTime);
+    generateThreadGraph([temp],minTime,maxTime);
     
 }
 
+function getDataForMalware(minTime,maxTime)
+{
+    var temp = data.slice();
+    temp = temp.filter(function(d){
+        return d.pname=="bbc03a5638e801" && d.instr>minTime && d.instr<maxTime;
+    });
+    return temp;
+}
 function bartobehavior(keyword){
 	//console.log('file');
 	d3.select('#behaviour-chart').selectAll('*').remove();
@@ -102,7 +136,7 @@ function bartobehavior(keyword){
 function BarToBehaviourGraph(keyword){
 
 	dataLength = data.length;
-    var noOfCallPerLine = 400;
+    var noOfCallPerLine = 700;
     noOfLines = dataLength/noOfCallPerLine;
 console.log(keyword);
         console.log(minTime);
@@ -269,7 +303,7 @@ points.selectAll('.dot')
 function generateBehaviourGraph(){
 
     dataLength = data.length;
-    var noOfCallPerLine = 400;
+    var noOfCallPerLine = 700;
     noOfLines = dataLength/noOfCallPerLine;
     data.sort(function(a, b) { return a.instr - b.instr });
      
@@ -315,17 +349,21 @@ function RemoveApiCallfromMap(){
         active_api.splice(flag,1);    
 }
 // To parse data for the list
-function listdatacollector(min,max){
+function listdatacollector(min,max,malwareFlag){
 	
 	console.log("min "+min+" max:"+max);
 	var list_data=data.filter(function(d){
 		
 		return (d.instr<=max && d.instr>=min);
 	});
-	// list_data=list_data.filter(function(d){
+    if(malwareFlag=="malware")
+    {
+	list_data=list_data.filter(function(d){
 		
-	// 	return d.pname == "bbc03a5638e801";
-	// });
+		return d.pname == "bbc03a5638e801";
+	});
+        
+    }
 	var pdata=list_data.filter(function(d){
 		
 		return (d.call_name=="new_pid"||d.call_name=="nt_create_user_process"||d.call_name=="nt_terminate_process");
@@ -462,6 +500,8 @@ function bargraphinitializelist(){
                         d3.select(this).style("opacity",1.0);
                         AddApiCalltoMap();
                         bartobehavior(th.id);
+                        console.log("barclicked:"+minTime);
+                        console.log("barclicked:"+maxTime);
                         var selectedCalls = getCallsDataForCallCategory(th.id);
                         generateThreadGraph([selectedCalls],minTime, maxTime);
                     })
