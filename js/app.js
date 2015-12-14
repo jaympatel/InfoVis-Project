@@ -1,7 +1,7 @@
-var data = null, list=[];;
+var data = null, list=[];
 var width=300, height=200;
 var list_map=[];
-var active_api=null;
+var active_api=["process", "file", "registry", "memory-section", "virtual-memory", "ipc"];
 var th=null;
 var behaviorcanvas;
 var minTime=0;
@@ -56,7 +56,7 @@ function dataLoaded(result)
 
     initiateSlider(minTime, maxTime);
     listdatacollector(minTime, maxTime);
-    initializelist();
+    bargraphinitializelist();
     generateBehaviourGraph();
     var temp = data.slice();
     generateThreadGraph([temp],minTime,maxTime);
@@ -68,6 +68,17 @@ function dataLoaded(result)
     // console.log(getUniqueValues("pname").length);
     // console.log(getClassName("new_pid"));
 
+}
+// onclick radio button Full Data
+function selectFullData(){
+
+
+}
+
+// onclick radio button Malware Data
+function selectMalwareData(){
+
+    
 }
 
 function bartobehavior(keyword){
@@ -282,25 +293,26 @@ function generateBehaviourGraph(){
         }
 }
 
-//To add selection of bar to map
-function mapadd(){
+//To update which api call is currently active
+
+function AddApiCalltoMap(){
 	
-	if(active_api==null)							// to check if the data is already selected
-		active_api=th.id;						
-	else{
+    var flag=0;
+    flag=active_api.indexOf(th.id);
+    if(flag==-1){
 
-		if((active_api).indexOf(th.id)==-1){
-
-			active_api=active_api.concat(th.id);
-			console.log("added "+active_api);
-		}
-	}	
+        active_api[active_api.length]=th.id;
+    }
+    //console.log(active_api);
 }
 
-//To remove selection of bar to map
-function mapremove(){
-	
+//To remove the selected api calls 
 
+function RemoveApiCallfromMap(){
+	
+    var flag=active_api.indexOf(th.id);
+    if(flag>-1)
+        active_api.splice(flag,1);    
 }
 // To parse data for the list
 function listdatacollector(min,max){
@@ -388,15 +400,15 @@ function updatelist_data(){							// to update the bar graphs
 													// only need to update the list_map value which is a globle variable
 	//list_map[0]-=1000;
 	d3.select("#bar-chart").selectAll("*").remove();
-	initializelist();		
+	bargraphinitializelist();		
 }
 
 // To initialize the SVG for bar graph data
-function initializelist(){
+function bargraphinitializelist(){
 	
 	list = ["Process","File","Registry","Memory Section","Virtual Memory","IPC"];
 	var canvas = d3.select("#bar-chart")
-				.attr("width", width)
+				.attr("width", width+50)
 				.attr("height", height)
 				.append("g")
 				.attr("transform","translate(78,20)");
@@ -436,7 +448,6 @@ function initializelist(){
 					.attr("id",function(d,i){ return getClassNameFromDisplayName(list[i]);})
 					.on("mouseover",function(d){
 						
-						d3.select(this).attr("fill","blue");
 						d3.select("#tooltip").select("#count").text("No. of Calls: "+d);
 						d3.select("#tooltip").style({
                             
@@ -448,14 +459,14 @@ function initializelist(){
                     .on("click", function(d){
 
                         th=this;
-                        // console.log(this.id);
+                        d3.select(this).style("opacity",1.0);
+                        AddApiCalltoMap();
                         bartobehavior(th.id);
                         var selectedCalls = getCallsDataForCallCategory(th.id);
                         generateThreadGraph([selectedCalls],minTime, maxTime);
                     })
 					.on("mouseout",function(d){
 						
-						d3.select(this).attr("fill","red");
 						d3.select("#tooltip").style({
                             
                             'display': 'none'
@@ -466,7 +477,7 @@ function initializelist(){
 						d3.event.preventDefault();
 						th=this;
 						d3.select(this).style("opacity",0.5);
-						mapremove();
+						RemoveApiCallfromMap();
 					});
 					
 	canvas.selectAll("text")
