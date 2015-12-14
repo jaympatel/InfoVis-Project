@@ -16,12 +16,11 @@ d3.csv("/data/7cd6edef-0b8c-4f6c-95ac-7b4e799c54a4.csv", function(result){
 
 function initiateSlider(minTime, maxTime){
     d3.select('#time-slider').call(d3.slider().axis(true).value([minTime, maxTime]).min(minTime).max(maxTime).on("slideend", function(evt, value) {
-
+        // console.log("min time initiateSlider="+minTime+" maxTime initiateSlider="+maxTime);
       minTime = parseInt(value[ 0 ]);
       maxTime = parseInt(value[ 1 ]);
       minTemp=minTime;
       maxTemp=maxTime;
-      console.log("minTime initiateSlider1="+minTime+" maxTime initiateSlider1="+maxTime);
       listdatacollector(value[0],value[1]);
       updatelist_data();
       var temp = getDataForTimeFrame(minTime, maxTime);
@@ -77,10 +76,10 @@ function dataLoaded(result)
 }
 
 function bartobehavior(){
-	//console.log('file');
-    console.log("minTime bartobehavior1="+minTime+" maxTime bartobehavior1="+maxTime);
+	
+    // console.log("minTime bartobehavior1="+minTime+" maxTime bartobehavior1="+maxTime);
 	d3.select('#behaviour-chart').selectAll('*').remove();
-    console.log("minTime bartobehavior2="+minTime+" maxTime bartobehavior2="+maxTime);
+    // console.log("minTime bartobehavior2="+minTime+" maxTime bartobehavior2="+maxTime);
 	BarToBehaviourGraph();
 	// behaviorcanvas.selectAll('rect')
 	// .attr('class',function(){
@@ -101,8 +100,8 @@ function BarToBehaviourGraph(){
     var noOfCallPerLine = 400;
     noOfLines = dataLength/noOfCallPerLine;
     //console.log(keyword);
-        console.log("mintime BarToBehaviourGraph1="+minTime+" maxtime BarToBehaviourGraph1="+maxTime);
-        console.log("mintemp BarToBehaviourGraph1="+minTemp+" maxtemp BarToBehaviourGraph1="+maxTemp);
+        // console.log("mintime BarToBehaviourGraph1="+minTime+" maxtime BarToBehaviourGraph1="+maxTime);
+        // console.log("mintemp BarToBehaviourGraph1="+minTemp+" maxtemp BarToBehaviourGraph1="+maxTemp);
         for(j=0;j<noOfLines;j++)
         {
             newdata=data.slice(j*noOfCallPerLine,Math.min(dataLength,j*noOfCallPerLine+(noOfCallPerLine-1)));
@@ -322,7 +321,7 @@ function mapremove(){
 // To parse data for the list
 function listdatacollector(min,max){
 	
-	console.log("min listdatacollector1"+min+" max listdatacollector1:"+max);
+	// console.log("min listdatacollector1"+min+" max listdatacollector1:"+max);
 	var list_data=data.filter(function(d){
 		
 		return (d.instr<=max && d.instr>=min);
@@ -467,12 +466,12 @@ function initializelist(){
                         th=this;
                         barSelectedOperation=this.id;
                         // console.log(this.id);
-                        console.log("min time initializelist1:"+minTime);
+                        // console.log("min time initializelist1:"+minTime);
                         bartobehavior();
                         var selectedCalls = getCallsDataForCallCategory(th.id);
-                        console.log("min time initializelist2:"+minTime);
+                        // console.log("min time initializelist2:"+minTime);
                         generateThreadGraph([selectedCalls],minTime, maxTime);
-                        console.log("min time initializelist3:"+minTime);
+                        // console.log("min time initializelist3:"+minTime);
                     })
 					.on("mouseout",function(d){
 						
