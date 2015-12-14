@@ -1,16 +1,18 @@
-var data = null, list=[];;
+var data = null, list=[];
 var width=300, height=200;
 var list_map=[];
-var active_api=null;
+var active_api=["process", "file", "registry", "memory-section", "virtual-memory", "ipc"];
 var th=null;
-var behaviorcanvas;
 var minTime=0;
 var maxTime =0;
 var maxTemp=0;
 var minTemp=0;
-var barSelectedOperation=null;
+var behaviorcanvas=null;
+var dataLength = null;
+var noOfCallPerLine = 400;
+var noOfLines = null;
 
-d3.csv("/data/7cd6edef-0b8c-4f6c-95ac-7b4e799c54a4.csv", function(result){
+d3.csv("../data/7cd6edef-0b8c-4f6c-95ac-7b4e799c54a4.csv", function(result){
     dataLoaded(result);
 });
 
@@ -25,8 +27,7 @@ function initiateSlider(minTime, maxTime){
       updatelist_data();
       var temp = getDataForTimeFrame(minTime, maxTime);
       generateThreadGraph([temp],minTime,maxTime);
-      behaviorslider();
-
+      bartobehavior();
     }));
 }
 
@@ -48,7 +49,13 @@ function dataLoaded(result)
 			call_category: getClassName(d.call_name)
         }
     });
-	
+	dataLength = data.length;
+    noOfLines = dataLength/noOfCallPerLine;
+
+    behaviorcanvas=d3.select('#behaviour-chart')
+        .attr('height',(noOfLines+1)*20)
+        .attr('width',700);
+
     // console.log(getUniqueValues("call_name"));
     // console.log(getUniqueValues("pid"));
     // console.log(getUniqueValues("pid").length);
@@ -58,11 +65,13 @@ function dataLoaded(result)
 
     maxTime = d3.max(data, function(d) { return d.instr; });
     minTime = d3.min(data, function(d) { return d.instr; });
+    minTemp=minTime;
+    maxTemp=maxTime;
 
     initiateSlider(minTime, maxTime);
     listdatacollector(minTime, maxTime);
-    initializelist();
-    generateBehaviourGraph();
+    bargraphinitializelist();
+    bartobehavior();
     var temp = data.slice();
     generateThreadGraph([temp],minTime,maxTime);
 	
@@ -73,6 +82,17 @@ function dataLoaded(result)
     // console.log(getUniqueValues("pname").length);
     // console.log(getClassName("new_pid"));
 
+}
+// onclick radio button Full Data
+function selectFullData(){
+
+
+}
+
+// onclick radio button Malware Data
+function selectMalwareData(){
+
+    
 }
 
 function bartobehavior(){
@@ -96,9 +116,7 @@ function bartobehavior(){
 
 function BarToBehaviourGraph(){
 
-	dataLength = data.length;
-    var noOfCallPerLine = 400;
-    noOfLines = dataLength/noOfCallPerLine;
+	
     //console.log(keyword);
         // console.log("mintime BarToBehaviourGraph1="+minTime+" maxtime BarToBehaviourGraph1="+maxTime);
         // console.log("mintemp BarToBehaviourGraph1="+minTemp+" maxtemp BarToBehaviourGraph1="+maxTemp);
@@ -121,7 +139,7 @@ function BarToBehaviourGraph(){
                     }
                     else
                     {  
-                        if(d.call_category != barSelectedOperation){
+                        if(active_api.indexOf(d.call_category)==-1){
                             return 'white-color';
                         }
                         else{
@@ -134,23 +152,23 @@ function BarToBehaviourGraph(){
         }
 }
 
-function behaviorslider()
-{
-    if(barSelectedOperation==null)
-    {
-            behaviorcanvas.selectAll('rect')
-            .style('fill',function(){
-            if(this.id < minTemp || this.id > maxTemp){
-                return 'white';
-            }
-        });
-    }
-    else
-    {
-        bartobehavior();
-    }
+// function behaviorslider()
+// {
+//     if(d.call_category.size()==)
+//     {
+//             behaviorcanvas.selectAll('rect')
+//             .style('fill',function(){
+//             if(this.id < minTemp || this.id > maxTemp){
+//                 return 'white';
+//             }
+//         });
+//     }
+//     else
+//     {
+//         bartobehavior();
+//     }
 	
-}
+// }
 function generateThreadGraph(graphData,minTime,maxTime){
     // graphData = [[{instr: 2560842, call_name: "new_pid"},{instr: 69058869, call_name: "nt_create_key", pid: "1780"}]];
 //************************************************************
@@ -270,53 +288,54 @@ points.selectAll('.dot')
     );
 }
 
-function generateBehaviourGraph(){
+// function generateBehaviourGraph(){
 
-    dataLength = data.length;
-    var noOfCallPerLine = 400;
-    noOfLines = dataLength/noOfCallPerLine;
-    //data.sort(function(a, b) { return a.instr - b.instr });
+//     dataLength = data.length;
+//     var noOfCallPerLine = 400;
+//     noOfLines = dataLength/noOfCallPerLine;
+//     //data.sort(function(a, b) { return a.instr - b.instr });
      
-        behaviorcanvas=d3.select('#behaviour-chart')
-        .attr('height',(noOfLines+1)*20)
-        .attr('width',700);
+//         behaviorcanvas=d3.select('#behaviour-chart')
+//         .attr('height',(noOfLines+1)*20)
+//         .attr('width',700);
         
-        for(j=0;j<noOfLines;j++)
-        {
-            newdata=data.slice(j*noOfCallPerLine,Math.min(dataLength,j*noOfCallPerLine+(noOfCallPerLine-1)));
+//         for(j=0;j<noOfLines;j++)
+//         {
+//             newdata=data.slice(j*noOfCallPerLine,Math.min(dataLength,j*noOfCallPerLine+(noOfCallPerLine-1)));
       
-            newdata.forEach(function(d,i){
-            behaviorcanvas.append('rect')
-                .attr('y',j*20)
-                .attr('x',i)
-                .attr('width',1)
-                .attr('height','15px')
-                .attr('id',d.instr)
-                //getClassName(d.call_name)
-                .attr('class',d.call_category);
-            });
-        }
+//             newdata.forEach(function(d,i){
+//             behaviorcanvas.append('rect')
+//                 .attr('y',j*20)
+//                 .attr('x',i)
+//                 .attr('width',1)
+//                 .attr('height','15px')
+//                 .attr('id',d.instr)
+//                 //getClassName(d.call_name)
+//                 .attr('class',d.call_category);
+//             });
+//         }
+// }
+
+//To update which api call is currently active
+
+function AddApiCalltoMap(){
+	
+    var flag=0;
+    flag=active_api.indexOf(th.id);
+    if(flag==-1){
+
+        active_api[active_api.length]=th.id;
+    }
+    //console.log(active_api);
 }
 
-//To add selection of bar to map
-function mapadd(){
+//To remove the selected api calls 
+
+function RemoveApiCallfromMap(){
 	
-	if(active_api==null)							// to check if the data is already selected
-		active_api=th.id;						
-	else{
-
-		if((active_api).indexOf(th.id)==-1){
-
-			active_api=active_api.concat(th.id);
-			console.log("added "+active_api);
-		}
-	}	
-}
-
-//To remove selection of bar to map
-function mapremove(){
-	
-
+    var flag=active_api.indexOf(th.id);
+    if(flag>-1)
+        active_api.splice(flag,1);
 }
 // To parse data for the list
 function listdatacollector(min,max){
@@ -404,15 +423,15 @@ function updatelist_data(){							// to update the bar graphs
 													// only need to update the list_map value which is a globle variable
 	//list_map[0]-=1000;
 	d3.select("#bar-chart").selectAll("*").remove();
-	initializelist();		
+	bargraphinitializelist();		
 }
 
 // To initialize the SVG for bar graph data
-function initializelist(){
+function bargraphinitializelist(){
 	
 	list = ["Process","File","Registry","Memory Section","Virtual Memory","IPC"];
 	var canvas = d3.select("#bar-chart")
-				.attr("width", width)
+				.attr("width", width+50)
 				.attr("height", height)
 				.append("g")
 				.attr("transform","translate(78,20)");
@@ -452,7 +471,6 @@ function initializelist(){
 					.attr("id",function(d,i){ return getClassNameFromDisplayName(list[i]);})
 					.on("mouseover",function(d){
 						
-						d3.select(this).attr("fill","blue");
 						d3.select("#tooltip").select("#count").text("No. of Calls: "+d);
 						d3.select("#tooltip").style({
                             
@@ -464,9 +482,12 @@ function initializelist(){
                     .on("click", function(d){
 
                         th=this;
-                        barSelectedOperation=this.id;
+
                         // console.log(this.id);
                         // console.log("min time initializelist1:"+minTime);
+
+                        d3.select(this).style("opacity",1.0);
+                        AddApiCalltoMap();
                         bartobehavior();
                         var selectedCalls = getCallsDataForCallCategory(th.id);
                         // console.log("min time initializelist2:"+minTime);
@@ -475,7 +496,6 @@ function initializelist(){
                     })
 					.on("mouseout",function(d){
 						
-						d3.select(this).attr("fill","red");
 						d3.select("#tooltip").style({
                             
                             'display': 'none'
@@ -486,7 +506,8 @@ function initializelist(){
 						d3.event.preventDefault();
 						th=this;
 						d3.select(this).style("opacity",0.5);
-						mapremove();
+						RemoveApiCallfromMap();
+                        bartobehavior();
 					});
 					
 	canvas.selectAll("text")
@@ -570,6 +591,8 @@ function getClassName(data){
     else if(memSection.indexOf(data)!=-1){
       return "memory-section";
     }
+
+
 }
 
 
@@ -579,3 +602,4 @@ function resetGraph(){
     d3.select("#handle-two").style("left","100%");
     d3.select(".d3-slider-range").style("left","0%").style("right","0%");
 }
+
