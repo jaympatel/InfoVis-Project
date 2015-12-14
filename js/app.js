@@ -449,7 +449,9 @@ function initializelist(){
 
                         th=this;
                         // console.log(this.id);
-                        bartobehavior(th.id)
+                        bartobehavior(th.id);
+                        var selectedCalls = getCallsDataForCallCategory(th.id);
+                        generateThreadGraph([selectedCalls],minTime, maxTime);
                     })
 					.on("mouseout",function(d){
 						
@@ -485,6 +487,14 @@ function initializelist(){
 				.attr("transform","translate(-1,0)")
 				.attr("class", "axis")
 				.call(yaxis);			
+}
+
+function getCallsDataForCallCategory(callCategory){
+    var temp = data.slice();
+    temp = temp.filter(function(d){
+        return d.call_category==callCategory && d.instr>minTime && d.instr<maxTime;
+    });
+    return temp;
 }
 
 function getClassNameFromDisplayName(displayName){
