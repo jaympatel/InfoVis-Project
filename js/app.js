@@ -3,29 +3,31 @@ var width=300, height=200;
 var list_map=[];
 var active_api=["process", "file", "registry", "memory-section", "virtual-memory", "ipc"];
 var th=null;
-var behaviorcanvas;
 var minTime=0;
 var maxTime =0;
+var maxTemp=0;
+var minTemp=0;
+var behaviorcanvas=null;
+var dataLength = null;
+var noOfCallPerLine = 700;
+var noOfLines = null;
 
-d3.csv("/data/7cd6edef-0b8c-4f6c-95ac-7b4e799c54a4.csv", function(result){
+d3.csv("../data/7cd6edef-0b8c-4f6c-95ac-7b4e799c54a4.csv", function(result){
     dataLoaded(result);
 });
 
 function initiateSlider(minTime, maxTime){
     d3.select('#time-slider').call(d3.slider().axis(true).value([minTime, maxTime]).min(minTime).max(maxTime).on("slideend", function(evt, value) {
-
-      minTime = parseInt(value[ 0 ]+"");
-      maxTime = parseInt(value[ 1 ]+"");
-      console.log(minTime);
-      console.log(maxTime);
-      var rates = getCheckedRadioValue('malware');
-      // console.log("--------"+rates);
-      listdatacollector(value[0],value[1],rates);
+      minTime = parseInt(value[ 0 ]);
+      maxTime = parseInt(value[ 1 ]);
+      minTemp=minTime;
+      maxTemp=maxTime;
+      listdatacollector(value[0],value[1]);
       updatelist_data();
-      var temp = getDataForTimeFrame(minTime, maxTime);
-      generateThreadGraph([temp],minTime,maxTime);
-      behaviorslider(value[ 0 ],value[ 1 ]);
-
+      var temp = getDataForTimeFrame(minTemp, maxTemp);
+      generateThreadGraph([temp],minTemp,maxTemp);
+      var rates = getCheckedRadioValue('malware');
+      bartobehavior(rates);
     }));
 }
 
@@ -55,7 +57,13 @@ function dataLoaded(result)
 			call_category: getClassName(d.call_name)
         }
     });
-	
+	dataLength = data.length;
+    noOfLines = dataLength/noOfCallPerLine;
+
+    behaviorcanvas=d3.select('#behaviour-chart')
+        .attr('height',(noOfLines+1)*20)
+        .attr('width',700);
+
     // console.log(getUniqueValues("call_name"));
     // console.log(getUniqueValues("pid"));
     // console.log(getUniqueValues("pid").length);
@@ -65,15 +73,20 @@ function dataLoaded(result)
 
     maxTime = d3.max(data, function(d) { return d.instr; });
     minTime = d3.min(data, function(d) { return d.instr; });
+    minTemp=minTime;
+    maxTemp=maxTime;
 
     initiateSlider(minTime, maxTime);
       var rates = getCheckedRadioValue('malware');
+      
 
     listdatacollector(minTime, maxTime,rates);
     bargraphinitializelist();
-    generateBehaviourGraph();
+      var rates = getCheckedRadioValue('malware');
+
+    bartobehavior(rates);
     var temp = data.slice();
-    generateThreadGraph([temp],minTime,maxTime);
+    generateThreadGraph([temp],minTemp,maxTemp);
 	
     // console.log(getUniqueValues("call_name"));
     // console.log(getUniqueValues("pid"));
@@ -86,24 +99,29 @@ function dataLoaded(result)
 // onclick radio button Full Data
 function selectFullData(){
 
-// console.log("full data clicked");
-// console.log(minTime);
-// console.log(maxtime);
-      var rates = getCheckedRadioValue('malware');
+    // bar chart
+    var rates = getCheckedRadioValue('malware');
+    listdatacollector(minTime,maxTime,rates);
+    updatelist_data();
+    //behavoiur graph
+    bartobehavior(rates);
+    // theread graph
+    var temp = getDataForTimeFrame(minTemp,maxTemp);
+    generateThreadGraph([temp],minTemp,maxTemp);
 
-listdatacollector(minTime,maxTime,rates);
-updatelist_data();
-var temp = getDataForTimeFrame(minTime,maxTime);
-generateThreadGraph([temp],minTime,maxTime);
 }
 
 function selectMalwareData(){
 
     var rates = getCheckedRadioValue('malware');
+    // bar chart
     listdatacollector(minTime,maxTime,rates);
     updatelist_data();
-    var temp = getDataForMalware(minTime,maxTime);
-    generateThreadGraph([temp],minTime,maxTime);
+    // behaviour chart
+    bartobehavior(rates);
+    // theread graph
+    var temp = getDataForMalware(minTemp,maxTemp);
+    generateThreadGraph([temp],minTemp,maxTemp);
     
 }
 
@@ -115,11 +133,14 @@ function getDataForMalware(minTime,maxTime)
     });
     return temp;
 }
-function bartobehavior(keyword){
+function bartobehavior(malwareFlag){
 	//console.log('file');
+
+	
+    // console.log("minTime bartobehavior1="+minTime+" maxTime bartobehavior1="+maxTime);
 	d3.select('#behaviour-chart').selectAll('*').remove();
-    
-	BarToBehaviourGraph(keyword);
+    // console.log("minTime bartobehavior2="+minTime+" maxTime bartobehavior2="+maxTime);
+	BarToBehaviourGraph(malwareFlag);
 	// behaviorcanvas.selectAll('rect')
 	// .attr('class',function(){
 	// 	console.log(this.class);
@@ -133,14 +154,13 @@ function bartobehavior(keyword){
 	// });
 }
 
-function BarToBehaviourGraph(keyword){
+function BarToBehaviourGraph(malwareFlag){
 
-	dataLength = data.length;
-    var noOfCallPerLine = 700;
-    noOfLines = dataLength/noOfCallPerLine;
-console.log(keyword);
-        console.log(minTime);
-        console.log(maxTime);
+
+	
+    //console.log(keyword);
+        // console.log("mintime BarToBehaviourGraph1="+minTime+" maxtime BarToBehaviourGraph1="+maxTime);
+        // console.log("mintemp BarToBehaviourGraph1="+minTemp+" maxtemp BarToBehaviourGraph1="+maxTemp);
         for(j=0;j<noOfLines;j++)
         {
             newdata=data.slice(j*noOfCallPerLine,Math.min(dataLength,j*noOfCallPerLine+(noOfCallPerLine-1)));
@@ -153,34 +173,48 @@ console.log(keyword);
                 .attr('height','15px')
                 .attr('id',d.instr)
                 .attr('class',function(){
-                    // if(d.id < minTime || d.id > maxTime)
-                    // {
-                    //     return 'white-color';
-                    // }
-                    // else
-                    // {
-                        if(d.call_category != keyword){
+                   // console.log("instr="+d.instr+" minTime="+minTime+" maxTime="+maxTime);
+                    if(d.instr < minTemp || d.instr > maxTemp)
+                    {
+                        return 'white-color';
+                    }
+                    else if(d.pname!="bbc03a5638e801" && malwareFlag=="malware")
+                    {
+                        return 'white-color';
+
+                    }
+                    else
+                    {  
+                        if(active_api.indexOf(d.call_category)==-1){
                             return 'white-color';
                         }
                         else{
                             return d.call_category;
                         }
-                    //}
+                    }
                 	
                 });
             });
         }
 }
 
-function behaviorslider(low,high)
-{
-	behaviorcanvas.selectAll('rect')
-	.style('fill',function(){
-		if(this.id < low || this.id > high){
-			return 'black';
-		}
-	});
-}
+// function behaviorslider()
+// {
+//     if(d.call_category.size()==)
+//     {
+//             behaviorcanvas.selectAll('rect')
+//             .style('fill',function(){
+//             if(this.id < minTemp || this.id > maxTemp){
+//                 return 'white';
+//             }
+//         });
+//     }
+//     else
+//     {
+//         bartobehavior();
+//     }
+	
+// }
 function generateThreadGraph(graphData,minTime,maxTime){
     // graphData = [[{instr: 2560842, call_name: "new_pid"},{instr: 69058869, call_name: "nt_create_key", pid: "1780"}]];
 //************************************************************
@@ -300,33 +334,6 @@ points.selectAll('.dot')
     );
 }
 
-function generateBehaviourGraph(){
-
-    dataLength = data.length;
-    var noOfCallPerLine = 700;
-    noOfLines = dataLength/noOfCallPerLine;
-    data.sort(function(a, b) { return a.instr - b.instr });
-     
-        behaviorcanvas=d3.select('#behaviour-chart')
-        .attr('height',(noOfLines+1)*20)
-        .attr('width',700);
-        
-        for(j=0;j<noOfLines;j++)
-        {
-            newdata=data.slice(j*noOfCallPerLine,Math.min(dataLength,j*noOfCallPerLine+(noOfCallPerLine-1)));
-      
-            newdata.forEach(function(d,i){
-            behaviorcanvas.append('rect')
-                .attr('y',j*20)
-                .attr('x',i)
-                .attr('width',1)
-                .attr('height','15px')
-                .attr('id',d.instr)
-                .attr('class',getClassName(d.call_name));
-            });
-        }
-}
-
 //To update which api call is currently active
 
 function AddApiCalltoMap(){
@@ -336,6 +343,11 @@ function AddApiCalltoMap(){
     if(flag==-1){
 
         active_api[active_api.length]=th.id;
+        var rates = getCheckedRadioValue('malware');
+        bartobehavior(rates);
+        var selectedCalls = getCallsDataForCallCategory();
+        // console.log("min time initializelist2:"+minTime);
+        generateThreadGraph([selectedCalls],minTime, maxTime);
     }
     //console.log(active_api);
 }
@@ -343,15 +355,23 @@ function AddApiCalltoMap(){
 //To remove the selected api calls 
 
 function RemoveApiCallfromMap(){
-	
+    
     var flag=active_api.indexOf(th.id);
     if(flag>-1)
-        active_api.splice(flag,1);    
+    {
+
+        active_api.splice(flag,1);
+        var rates = getCheckedRadioValue('malware');
+        bartobehavior(rates);
+        var selectedCalls = getCallsDataForCallCategory();
+        // console.log("min time initializelist2:"+minTime);
+        generateThreadGraph([selectedCalls],minTime, maxTime);
+    }
 }
 // To parse data for the list
 function listdatacollector(min,max,malwareFlag){
 	
-	console.log("min "+min+" max:"+max);
+	// console.log("min listdatacollector1"+min+" max listdatacollector1:"+max);
 	var list_data=data.filter(function(d){
 		
 		return (d.instr<=max && d.instr>=min);
@@ -497,13 +517,14 @@ function bargraphinitializelist(){
                     .on("click", function(d){
 
                         th=this;
+
+                        // console.log(this.id);
+                        // console.log("min time initializelist1:"+minTime);
+
                         d3.select(this).style("opacity",1.0);
                         AddApiCalltoMap();
-                        bartobehavior(th.id);
-                        console.log("barclicked:"+minTime);
-                        console.log("barclicked:"+maxTime);
-                        var selectedCalls = getCallsDataForCallCategory(th.id);
-                        generateThreadGraph([selectedCalls],minTime, maxTime);
+                        
+                        // console.log("min time initializelist3:"+minTime);
                     })
 					.on("mouseout",function(d){
 						
@@ -543,7 +564,8 @@ function bargraphinitializelist(){
 function getCallsDataForCallCategory(callCategory){
     var temp = data.slice();
     temp = temp.filter(function(d){
-        return d.call_category==callCategory && d.instr>minTime && d.instr<maxTime;
+
+        return active_api.indexOf(d.call_category)!=-1 && d.instr>minTime && d.instr<maxTime;
     });
     return temp;
 }
@@ -601,6 +623,8 @@ function getClassName(data){
     else if(memSection.indexOf(data)!=-1){
       return "memory-section";
     }
+
+
 }
 
 
@@ -610,3 +634,4 @@ function resetGraph(){
     d3.select("#handle-two").style("left","100%");
     d3.select(".d3-slider-range").style("left","0%").style("right","0%");
 }
+
