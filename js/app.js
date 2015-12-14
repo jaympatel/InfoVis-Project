@@ -6,6 +6,9 @@ var th=null;
 var behaviorcanvas;
 var minTime=0;
 var maxTime =0;
+var maxTemp=0;
+var minTemp=0;
+var barSelectedOperation=null;
 
 d3.csv("/data/7cd6edef-0b8c-4f6c-95ac-7b4e799c54a4.csv", function(result){
     dataLoaded(result);
@@ -14,13 +17,16 @@ d3.csv("/data/7cd6edef-0b8c-4f6c-95ac-7b4e799c54a4.csv", function(result){
 function initiateSlider(minTime, maxTime){
     d3.select('#time-slider').call(d3.slider().axis(true).value([minTime, maxTime]).min(minTime).max(maxTime).on("slideend", function(evt, value) {
 
-      minTime = parseInt(value[ 0 ]+"");
-      maxTime = parseInt(value[ 1 ]+"");
+      minTime = parseInt(value[ 0 ]);
+      maxTime = parseInt(value[ 1 ]);
+      minTemp=minTime;
+      maxTemp=maxTime;
+      console.log("minTime initiateSlider1="+minTime+" maxTime initiateSlider1="+maxTime);
       listdatacollector(value[0],value[1]);
       updatelist_data();
       var temp = getDataForTimeFrame(minTime, maxTime);
       generateThreadGraph([temp],minTime,maxTime);
-      behaviorslider(value[ 0 ],value[ 1 ]);
+      behaviorslider();
 
     }));
 }
@@ -70,11 +76,12 @@ function dataLoaded(result)
 
 }
 
-function bartobehavior(keyword){
+function bartobehavior(){
 	//console.log('file');
+    console.log("minTime bartobehavior1="+minTime+" maxTime bartobehavior1="+maxTime);
 	d3.select('#behaviour-chart').selectAll('*').remove();
-    
-	BarToBehaviourGraph(keyword);
+    console.log("minTime bartobehavior2="+minTime+" maxTime bartobehavior2="+maxTime);
+	BarToBehaviourGraph();
 	// behaviorcanvas.selectAll('rect')
 	// .attr('class',function(){
 	// 	console.log(this.class);
@@ -88,14 +95,14 @@ function bartobehavior(keyword){
 	// });
 }
 
-function BarToBehaviourGraph(keyword){
+function BarToBehaviourGraph(){
 
 	dataLength = data.length;
     var noOfCallPerLine = 400;
     noOfLines = dataLength/noOfCallPerLine;
-console.log(keyword);
-        console.log(minTime);
-        console.log(maxTime);
+    //console.log(keyword);
+        console.log("mintime BarToBehaviourGraph1="+minTime+" maxtime BarToBehaviourGraph1="+maxTime);
+        console.log("mintemp BarToBehaviourGraph1="+minTemp+" maxtemp BarToBehaviourGraph1="+maxTemp);
         for(j=0;j<noOfLines;j++)
         {
             newdata=data.slice(j*noOfCallPerLine,Math.min(dataLength,j*noOfCallPerLine+(noOfCallPerLine-1)));
@@ -108,33 +115,42 @@ console.log(keyword);
                 .attr('height','15px')
                 .attr('id',d.instr)
                 .attr('class',function(){
-                    // if(d.id < minTime || d.id > maxTime)
-                    // {
-                    //     return 'white-color';
-                    // }
-                    // else
-                    // {
-                        if(d.call_category != keyword){
+                   // console.log("instr="+d.instr+" minTime="+minTime+" maxTime="+maxTime);
+                    if(d.instr < minTemp || d.instr > maxTemp)
+                    {
+                        return 'white-color';
+                    }
+                    else
+                    {  
+                        if(d.call_category != barSelectedOperation){
                             return 'white-color';
                         }
                         else{
                             return d.call_category;
                         }
-                    //}
+                    }
                 	
                 });
             });
         }
 }
 
-function behaviorslider(low,high)
+function behaviorslider()
 {
-	behaviorcanvas.selectAll('rect')
-	.style('fill',function(){
-		if(this.id < low || this.id > high){
-			return 'black';
-		}
-	});
+    if(barSelectedOperation==null)
+    {
+            behaviorcanvas.selectAll('rect')
+            .style('fill',function(){
+            if(this.id < minTemp || this.id > maxTemp){
+                return 'white';
+            }
+        });
+    }
+    else
+    {
+        bartobehavior();
+    }
+	
 }
 function generateThreadGraph(graphData,minTime,maxTime){
     // graphData = [[{instr: 2560842, call_name: "new_pid"},{instr: 69058869, call_name: "nt_create_key", pid: "1780"}]];
@@ -260,7 +276,7 @@ function generateBehaviourGraph(){
     dataLength = data.length;
     var noOfCallPerLine = 400;
     noOfLines = dataLength/noOfCallPerLine;
-    data.sort(function(a, b) { return a.instr - b.instr });
+    //data.sort(function(a, b) { return a.instr - b.instr });
      
         behaviorcanvas=d3.select('#behaviour-chart')
         .attr('height',(noOfLines+1)*20)
@@ -277,7 +293,8 @@ function generateBehaviourGraph(){
                 .attr('width',1)
                 .attr('height','15px')
                 .attr('id',d.instr)
-                .attr('class',getClassName(d.call_name));
+                //getClassName(d.call_name)
+                .attr('class',d.call_category);
             });
         }
 }
@@ -305,7 +322,7 @@ function mapremove(){
 // To parse data for the list
 function listdatacollector(min,max){
 	
-	console.log("min "+min+" max:"+max);
+	console.log("min listdatacollector1"+min+" max listdatacollector1:"+max);
 	var list_data=data.filter(function(d){
 		
 		return (d.instr<=max && d.instr>=min);
@@ -448,10 +465,14 @@ function initializelist(){
                     .on("click", function(d){
 
                         th=this;
+                        barSelectedOperation=this.id;
                         // console.log(this.id);
-                        bartobehavior(th.id);
+                        console.log("min time initializelist1:"+minTime);
+                        bartobehavior();
                         var selectedCalls = getCallsDataForCallCategory(th.id);
+                        console.log("min time initializelist2:"+minTime);
                         generateThreadGraph([selectedCalls],minTime, maxTime);
+                        console.log("min time initializelist3:"+minTime);
                     })
 					.on("mouseout",function(d){
 						
