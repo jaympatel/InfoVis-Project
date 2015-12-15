@@ -12,7 +12,7 @@ var dataLength = null;
 var noOfCallPerLine = 700;
 var noOfLines = null;
 
-d3.csv("../data/7cd6edef-0b8c-4f6c-95ac-7b4e799c54a4.csv", function(result){
+d3.csv("https://raw.githubusercontent.com/jaympatel/InfoVis-Project/gh-pages/data/7cd6edef-0b8c-4f6c-95ac-7b4e799c54a4.csv", function(result){
     dataLoaded(result);
 });
 
