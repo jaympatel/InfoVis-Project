@@ -25,7 +25,7 @@ The reports generated during analysis of malware consist of large number of API 
 When malware infects any system it makes many standard system calls. These call remains almost same with new versions of the malware. Thus we created visualization to see the pattern of malware activity and identify its family.
 
 
-![Malware Visualization]()
+![Malware Visualization](/img/MalwareVis.png)
 
 
 ###Project Group Members: 
