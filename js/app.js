@@ -42,7 +42,7 @@ function getDataForTimeFrame(minTime, maxTime){
       console.log("**"+maxTime);
     var temp = data.slice();
     temp = temp.filter(function(d){
-        return d.instr>minTime && d.instr<maxTime;
+        return d.instr>minTime && d.instr<maxTime && active_api.indexOf(d.call_category)!=-1;
     });
     return temp;
 }
@@ -129,7 +129,7 @@ function getDataForMalware(minTime,maxTime)
 {
     var temp = data.slice();
     temp = temp.filter(function(d){
-        return d.pname=="bbc03a5638e801" && d.instr>minTime && d.instr<maxTime;
+        return d.pname=="bbc03a5638e801" && d.instr>minTime && d.instr<maxTime && active_api.indexOf(d.call_category)!=-1;
     });
     return temp;
 }
