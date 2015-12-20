@@ -11,22 +11,23 @@
         <div id='malware-vis'>
         &nbsp;&nbsp;        Malware Visualization
         </div>
-        <center><h3>Time Slice</h3></center>
-        <div id="time-slider">
+        <div id="bar-chart-container">API Call Counts<br/><svg id="bar-chart"></svg></div>
+        <div id="time-slider"> 
         </div>
         <br/>
         <br/>
-        &nbsp;&nbsp;&nbsp;&nbsp;<input type="radio" name="malware" value="full" onclick="selectFullData()" checked>Full Data
+        <br/>
+        <br/>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type="radio" name="malware" value="full" onclick="selectFullData()" checked>Full Data
         <input type="radio" name="malware" value="malware" onclick="selectMalwareData()">Only Malware Data
         <br/>
         <br/>
-        &nbsp;&nbsp;&nbsp;&nbsp;<button onclick="myFunction()">Reset Data</button>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<button onclick="myFunction()">Reset Data</button>
         <br/>
         <br/>
         <b>
-        &nbsp;&nbsp;&nbsp;&nbsp;Behaviour Graph For System&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;API Call Counts<br/></b>
-    	<div id="behaviour-chart-container"><svg id="behaviour-chart"></svg></div>
-        <div id="bar-chart-container"><svg id="bar-chart"></svg></div>
+        &nbsp;&nbsp;&nbsp;&nbsp;Behaviour Graph For System&nbsp;</b>
+        <div id="behaviour-chart-container"><svg id="behaviour-chart"></svg></div>
 
         <div id="thread-chart-container"><b>Thread Graph For the System</b><svg id="thread-graph"></svg></div>
         <div id="tooltip">

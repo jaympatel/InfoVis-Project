@@ -9,7 +9,7 @@ var maxTemp=0;
 var minTemp=0;
 var behaviorcanvas=null;
 var dataLength = null;
-var noOfCallPerLine = 700;
+var noOfCallPerLine = 1500;
 var noOfLines = null;
 
 d3.csv("../data/7cd6edef-0b8c-4f6c-95ac-7b4e799c54a4.csv", function(result){
@@ -161,6 +161,7 @@ function BarToBehaviourGraph(malwareFlag){
     //console.log(keyword);
         // console.log("mintime BarToBehaviourGraph1="+minTime+" maxtime BarToBehaviourGraph1="+maxTime);
         // console.log("mintemp BarToBehaviourGraph1="+minTemp+" maxtemp BarToBehaviourGraph1="+maxTemp);
+        console.log("lines:"+noOfLines)
         for(j=0;j<noOfLines;j++)
         {
             newdata=data.slice(j*noOfCallPerLine,Math.min(dataLength,j*noOfCallPerLine+(noOfCallPerLine-1)));
@@ -503,6 +504,12 @@ function bargraphinitializelist(){
 
 						return getClassNameFromDisplayName(list[i]);
 					})
+                    .style("opacity", function(d, i){
+
+                        console.log("opacity for"+getClassNameFromDisplayName(list[i]));
+                        if(active_api.indexOf(getClassNameFromDisplayName(list[i]))==-1)
+                            return 0.5;
+                    })
 					.attr("id",function(d,i){ return getClassNameFromDisplayName(list[i]);})
 					.on("mouseover",function(d){
 						

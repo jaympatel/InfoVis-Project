@@ -7,11 +7,14 @@ body {
   background-color: #293950;
   color: #ecf0f0;
   font-size: 50px;
-  height: 100px;
+  height: 70px;
   padding: 20px;
+  margin: 0px;
 }
 .d3-slider{
   margin: 25px;
+  width: 700px;
+  /*float: right;*/
 }
 
 .axis path,
@@ -37,17 +40,17 @@ body {
 }
 
 #behaviour-chart-container {
-  height: 600px;
-  width: 700px;
+  height: 700px;
+  width: 1200px;
   border:1px solid #000;
   overflow: scroll;
   float:left;
   margin: 15px;
-  padding: 25px;
+  padding: 15px;
  }
 
  #bar-chart-container {
-  height: 400px;
+  height: 160px;
   width: 400px;
   border:1px solid #000;
   overflow: scroll;
