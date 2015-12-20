@@ -9,7 +9,7 @@ var maxTemp=0;
 var minTemp=0;
 var behaviorcanvas=null;
 var dataLength = null;
-var noOfCallPerLine = 1500;
+var noOfCallPerLine = 1220;
 var noOfLines = null;
 
 d3.csv("../data/7cd6edef-0b8c-4f6c-95ac-7b4e799c54a4.csv", function(result){
@@ -62,7 +62,7 @@ function dataLoaded(result)
 
     behaviorcanvas=d3.select('#behaviour-chart')
         .attr('height',(noOfLines+1)*20)
-        .attr('width',700);
+        .attr('width',1215);
 
     // console.log(getUniqueValues("call_name"));
     // console.log(getUniqueValues("pid"));
