@@ -6,7 +6,7 @@
 
 A live demo can be found [here](http://nyu-cs6313-fall2015.github.io/Group-10/).
 
-A video demo can be found [here]().
+A video demo can be found [here](https://youtu.be/D-LPSFEaT_U).
 
 The document for  this project can be found
 [here]().
